@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 class DemoController extends Controller
@@ -74,6 +75,33 @@ class DemoController extends Controller
 
         return redirect()->route('admin.dashboard')
             ->with('status', '👋 Chào mừng Nhà tuyển dụng Demo! Xem AI Shortlist để đánh giá ứng viên.');
+    }
+
+    /**
+     * Reset demo data — wipe and reseed to original state.
+     */
+    public function resetDemo(Request $request)
+    {
+        $this->ensureDemoMode();
+
+        // Logout current user first
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        // Run migrate:fresh + DemoSeeder
+        try {
+            Artisan::call('migrate:fresh', ['--force' => true, '--seed' => false]);
+            Artisan::call('db:seed', ['--class' => 'DemoSeeder', '--force' => true]);
+
+            return redirect()->route('demo.landing')
+                ->with('status', '✅ Demo đã được reset về trạng thái ban đầu! Chọn vai trò để bắt đầu lại.');
+        } catch (\Throwable $e) {
+            return redirect()->route('demo.landing')
+                ->with('error', '❌ Reset thất bại: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -16,6 +16,7 @@ use App\Http\Middleware\RoleMiddleware;
 Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
 Route::post('/demo/enter-candidate', [DemoController::class, 'enterAsCandidate'])->name('demo.enter-candidate');
 Route::post('/demo/enter-recruiter', [DemoController::class, 'enterAsRecruiter'])->name('demo.enter-recruiter');
+Route::post('/demo/reset', [DemoController::class, 'resetDemo'])->name('demo.reset');
 
 // Auth routes (Guest only)
 Route::middleware('guest')->group(function () {

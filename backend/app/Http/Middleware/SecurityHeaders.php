@@ -48,7 +48,7 @@ class SecurityHeaders
                 "style-src 'self' 'unsafe-inline' https:",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
                 "connect-src 'self' https:",
-                'upgrade-insecure-requests',
+                // 'upgrade-insecure-requests', // disabled — no SSL on this server
             ];
 
             $headers->set('Content-Security-Policy', implode('; ', $csp));
