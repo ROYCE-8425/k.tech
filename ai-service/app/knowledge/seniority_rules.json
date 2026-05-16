@@ -1,0 +1,90 @@
+{
+  "_comment": "Seniority normalization rules. Maps raw text variations to canonical seniority levels.",
+  "_version": "1.0",
+  "_canonical_levels": ["intern", "fresher", "junior", "mid", "senior", "lead", "principal"],
+
+  "aliases": {
+    "intern": "intern",
+    "internship": "intern",
+    "thực tập": "intern",
+    "thực tập sinh": "intern",
+    "trainee": "intern",
+    "apprentice": "intern",
+    "sinh viên": "intern",
+
+    "fresher": "fresher",
+    "fresh graduate": "fresher",
+    "entry level": "fresher",
+    "entry-level": "fresher",
+    "mới ra trường": "fresher",
+    "fresh grad": "fresher",
+    "new grad": "fresher",
+    "graduate": "fresher",
+
+    "junior": "junior",
+    "jr": "junior",
+    "jr.": "junior",
+    "associate": "junior",
+    "beginner": "junior",
+    "1-2 năm": "junior",
+    "1+ năm": "junior",
+
+    "mid": "mid",
+    "mid-level": "mid",
+    "mid level": "mid",
+    "middle": "mid",
+    "intermediate": "mid",
+    "regular": "mid",
+    "2-5 năm": "mid",
+    "3+ năm": "mid",
+    "3-5 năm": "mid",
+
+    "senior": "senior",
+    "sr": "senior",
+    "sr.": "senior",
+    "experienced": "senior",
+    "advanced": "senior",
+    "5+ năm": "senior",
+    "5-8 năm": "senior",
+
+    "lead": "lead",
+    "tech lead": "lead",
+    "team lead": "lead",
+    "technical lead": "lead",
+    "staff": "lead",
+    "staff engineer": "lead",
+    "manager": "lead",
+    "engineering manager": "lead",
+    "trưởng nhóm": "lead",
+
+    "principal": "principal",
+    "principal engineer": "principal",
+    "architect": "principal",
+    "solution architect": "principal",
+    "distinguished": "principal",
+    "fellow": "principal",
+    "director": "principal",
+    "vp engineering": "principal",
+    "cto": "principal"
+  },
+
+  "level_order": {
+    "intern": 0,
+    "fresher": 1,
+    "junior": 2,
+    "mid": 3,
+    "senior": 4,
+    "lead": 5,
+    "principal": 6
+  },
+
+  "experience_hints": {
+    "intern": {"min": 0, "max": 0.5},
+    "fresher": {"min": 0, "max": 1},
+    "junior": {"min": 0.5, "max": 2},
+    "mid": {"min": 2, "max": 5},
+    "senior": {"min": 4, "max": 10},
+    "lead": {"min": 6, "max": 15},
+    "principal": {"min": 10, "max": 25}
+  }
+}

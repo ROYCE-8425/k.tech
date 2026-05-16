@@ -1,0 +1,233 @@
+{
+  "_comment": "Evaluation dataset v1 for Smart CV Matcher AI pipeline. Each case tests a specific matching scenario.",
+  "_version": "1.0",
+  "_score_bands": {
+    "high": "fit_score >= 80",
+    "medium": "60 <= fit_score < 80",
+    "low": "fit_score < 60"
+  },
+
+  "cases": [
+    {
+      "id": "case-001",
+      "description": "Strong backend match — candidate has most required skills",
+      "candidate": {
+        "id": 1001,
+        "name": "Nguyen Van A",
+        "skills_json": ["Python", "Django", "PostgreSQL", "Docker", "REST API", "Git"],
+        "experience": "5 years backend development",
+        "education": "Bachelor of Computer Science",
+        "summary": "Senior backend developer with 5 years experience in Python ecosystem"
+      },
+      "job": {
+        "id": 2001,
+        "title": "Senior Backend Developer",
+        "required_skills": ["Python", "Django", "PostgreSQL", "Docker"],
+        "preferred_skills": ["Kubernetes", "Redis"],
+        "seniority": "senior",
+        "min_experience_years": 4,
+        "max_experience_years": 8
+      },
+      "expected": {
+        "score_band": "high",
+        "rank_label": "high_fit",
+        "must_match_skills": ["Python", "Django", "PostgreSQL", "Docker"],
+        "must_miss_skills": [],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-002",
+      "description": "Partial match — frontend dev applying for backend role",
+      "candidate": {
+        "id": 1002,
+        "name": "Tran Thi B",
+        "skills_json": ["JavaScript", "React", "TypeScript", "HTML/CSS", "Node.js"],
+        "experience": "3 years frontend development",
+        "education": "Bachelor of IT",
+        "summary": "Mid-level frontend developer specializing in React ecosystem"
+      },
+      "job": {
+        "id": 2002,
+        "title": "Backend Developer (Python)",
+        "required_skills": ["Python", "FastAPI", "PostgreSQL", "Docker"],
+        "preferred_skills": ["Redis", "Kubernetes"],
+        "seniority": "mid",
+        "min_experience_years": 2,
+        "max_experience_years": 5
+      },
+      "expected": {
+        "score_band": "low",
+        "rank_label": "low_fit",
+        "must_match_skills": [],
+        "must_miss_skills": ["Python", "FastAPI", "PostgreSQL"],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-003",
+      "description": "Related skill match — React dev for Vue.js role (graph reasoning test)",
+      "candidate": {
+        "id": 1003,
+        "name": "Le Van C",
+        "skills_json": ["JavaScript", "React", "TypeScript", "REST API", "Git"],
+        "experience": "4 years frontend development",
+        "summary": "Frontend developer with strong React experience"
+      },
+      "job": {
+        "id": 2003,
+        "title": "Frontend Developer",
+        "required_skills": ["JavaScript", "Vue.js", "TypeScript", "REST API"],
+        "preferred_skills": ["Nuxt.js", "Tailwind CSS"],
+        "seniority": "mid",
+        "min_experience_years": 3,
+        "max_experience_years": 6
+      },
+      "expected": {
+        "score_band": "medium",
+        "rank_label": "medium_fit",
+        "must_match_skills": ["JavaScript", "TypeScript", "REST API"],
+        "must_miss_skills": [],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-004",
+      "description": "Over-qualified — principal-level for junior role",
+      "candidate": {
+        "id": 1004,
+        "name": "Pham Van D",
+        "skills_json": ["Java", "Spring Boot", "Kubernetes", "AWS", "Microservices", "PostgreSQL"],
+        "experience": "12 years software engineering",
+        "education": "Master of Computer Science",
+        "summary": "Principal engineer with 12 years of Java enterprise experience"
+      },
+      "job": {
+        "id": 2004,
+        "title": "Junior Java Developer",
+        "required_skills": ["Java", "Spring Boot", "SQL"],
+        "preferred_skills": ["Git", "Docker"],
+        "seniority": "junior",
+        "min_experience_years": 1,
+        "max_experience_years": 3
+      },
+      "expected": {
+        "score_band": "medium",
+        "rank_label": "medium_fit",
+        "must_match_skills": ["Java", "Spring Boot"],
+        "must_miss_skills": [],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-005",
+      "description": "Two-hop test — PHP dev for Next.js role (PHP→JavaScript→React→Next.js)",
+      "candidate": {
+        "id": 1005,
+        "name": "Hoang Van E",
+        "skills_json": ["PHP", "Laravel", "MySQL", "HTML/CSS", "Git"],
+        "experience": "3 years web development",
+        "summary": "PHP developer building web apps with Laravel"
+      },
+      "job": {
+        "id": 2005,
+        "title": "Frontend Developer (React/Next.js)",
+        "required_skills": ["React", "Next.js", "TypeScript", "REST API"],
+        "preferred_skills": ["Tailwind CSS", "Testing"],
+        "seniority": "mid",
+        "min_experience_years": 2,
+        "max_experience_years": 5
+      },
+      "expected": {
+        "score_band": "low",
+        "rank_label": "low_fit",
+        "must_match_skills": [],
+        "must_miss_skills": ["React", "TypeScript"],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-006",
+      "description": "Data analyst matching — good domain overlap",
+      "candidate": {
+        "id": 1006,
+        "name": "Vo Thi F",
+        "skills_json": ["Python", "Pandas", "SQL", "Tableau", "Excel", "Data Analysis"],
+        "experience": "4 years data analysis",
+        "education": "Bachelor of Statistics",
+        "summary": "Data analyst with Python and visualization expertise"
+      },
+      "job": {
+        "id": 2006,
+        "title": "Data Analyst",
+        "required_skills": ["Python", "SQL", "Data Analysis", "Tableau"],
+        "preferred_skills": ["Power BI", "Machine Learning"],
+        "seniority": "mid",
+        "min_experience_years": 2,
+        "max_experience_years": 6
+      },
+      "expected": {
+        "score_band": "high",
+        "rank_label": "high_fit",
+        "must_match_skills": ["Python", "SQL", "Data Analysis", "Tableau"],
+        "must_miss_skills": [],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-007",
+      "description": "Seniority mismatch — intern for senior role",
+      "candidate": {
+        "id": 1007,
+        "name": "Nguyen Van G",
+        "skills_json": ["Python", "Django", "Git"],
+        "experience": "6 months internship",
+        "education": "Bachelor (current student)",
+        "summary": "Computer science student with Django internship"
+      },
+      "job": {
+        "id": 2007,
+        "title": "Senior AI/ML Engineer",
+        "required_skills": ["Python", "PyTorch", "Machine Learning", "Docker", "AWS"],
+        "preferred_skills": ["LLM", "RAG", "Kubernetes"],
+        "seniority": "senior",
+        "min_experience_years": 5,
+        "max_experience_years": 10
+      },
+      "expected": {
+        "score_band": "low",
+        "rank_label": "low_fit",
+        "must_match_skills": ["Python"],
+        "must_miss_skills": ["PyTorch", "Machine Learning", "AWS"],
+        "min_evidence_count": 1
+      }
+    },
+    {
+      "id": "case-008",
+      "description": "Alternative cloud match — AWS experience for GCP role (graph test)",
+      "candidate": {
+        "id": 1008,
+        "name": "Dao Van H",
+        "skills_json": ["Python", "Docker", "Kubernetes", "AWS", "Terraform", "CI/CD"],
+        "experience": "5 years DevOps/SRE",
+        "summary": "DevOps engineer with deep AWS and container experience"
+      },
+      "job": {
+        "id": 2008,
+        "title": "Cloud Infrastructure Engineer",
+        "required_skills": ["GCP", "Docker", "Kubernetes", "Terraform", "CI/CD"],
+        "preferred_skills": ["Python", "Linux"],
+        "seniority": "senior",
+        "min_experience_years": 4,
+        "max_experience_years": 8
+      },
+      "expected": {
+        "score_band": "high",
+        "rank_label": "high_fit",
+        "must_match_skills": ["Docker", "Kubernetes", "Terraform", "CI/CD"],
+        "must_miss_skills": [],
+        "min_evidence_count": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "_comment": "Domain keyword taxonomy for IT job matching. Maps job families to canonical domain keywords.",
+  "_version": "1.0",
+
+  "job_families": {
+    "backend": {
+      "keywords": ["backend", "server-side", "api", "database", "microservices", "server", "phía máy chủ"],
+      "related_skills": ["Node.js", "Java", "Python", "PHP", "Go", "PostgreSQL", "MySQL", "Redis", "Docker", "REST API", "GraphQL"]
+    },
+    "frontend": {
+      "keywords": ["frontend", "front-end", "ui", "ux", "giao diện", "client-side", "responsive", "spa"],
+      "related_skills": ["React", "Vue.js", "Angular", "JavaScript", "TypeScript", "HTML/CSS", "Tailwind CSS", "Next.js"]
+    },
+    "fullstack": {
+      "keywords": ["fullstack", "full-stack", "full stack"],
+      "related_skills": ["React", "Node.js", "JavaScript", "TypeScript", "PostgreSQL", "Docker", "REST API"]
+    },
+    "data": {
+      "keywords": ["data", "analytics", "analysis", "phân tích", "dashboard", "reporting", "bi", "business intelligence", "dữ liệu"],
+      "related_skills": ["SQL", "Python", "Pandas", "Excel", "Tableau", "Power BI", "Data Analysis"]
+    },
+    "ai_ml": {
+      "keywords": ["ai", "ml", "machine learning", "deep learning", "artificial intelligence", "trí tuệ nhân tạo", "học máy", "nlp", "computer vision"],
+      "related_skills": ["Python", "PyTorch", "TensorFlow", "Scikit-learn", "Machine Learning", "NLP", "LLM", "Docker"]
+    },
+    "devops": {
+      "keywords": ["devops", "sre", "infrastructure", "cloud", "deployment", "hạ tầng", "platform"],
+      "related_skills": ["Docker", "Kubernetes", "AWS", "GCP", "Azure", "Terraform", "CI/CD", "Linux", "Bash/Shell"]
+    },
+    "mobile": {
+      "keywords": ["mobile", "app", "ứng dụng", "ios", "android", "cross-platform", "di động"],
+      "related_skills": ["React Native", "Flutter", "iOS Development", "Android Development", "Swift", "Kotlin"]
+    },
+    "security": {
+      "keywords": ["security", "bảo mật", "cybersecurity", "penetration", "infosec"],
+      "related_skills": ["Linux", "Python", "Bash/Shell", "Docker", "AWS"]
+    },
+    "qa": {
+      "keywords": ["qa", "testing", "quality", "kiểm thử", "test automation", "chất lượng"],
+      "related_skills": ["Testing", "JavaScript", "Python", "Docker", "CI/CD"]
+    }
+  },
+
+  "title_to_family": {
+    "backend developer": "backend",
+    "backend engineer": "backend",
+    "api developer": "backend",
+    "server engineer": "backend",
+
+    "frontend developer": "frontend",
+    "frontend engineer": "frontend",
+    "ui developer": "frontend",
+    "web developer": "frontend",
+
+    "fullstack developer": "fullstack",
+    "full-stack developer": "fullstack",
+    "full stack developer": "fullstack",
+    "web application developer": "fullstack",
+
+    "data analyst": "data",
+    "data engineer": "data",
+    "business analyst": "data",
+    "bi analyst": "data",
+    "data scientist": "data",
+
+    "ai engineer": "ai_ml",
+    "ai/ml engineer": "ai_ml",
+    "ml engineer": "ai_ml",
+    "machine learning engineer": "ai_ml",
+    "deep learning engineer": "ai_ml",
+    "nlp engineer": "ai_ml",
+    "research engineer": "ai_ml",
+
+    "devops engineer": "devops",
+    "sre": "devops",
+    "platform engineer": "devops",
+    "cloud engineer": "devops",
+    "infrastructure engineer": "devops",
+
+    "mobile developer": "mobile",
+    "ios developer": "mobile",
+    "android developer": "mobile",
+    "flutter developer": "mobile",
+    "react native developer": "mobile",
+
+    "qa engineer": "qa",
+    "test engineer": "qa",
+    "sdet": "qa",
+    "automation tester": "qa"
+  }
+}

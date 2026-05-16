@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cvmatcher-postgres
+    environment:
+      POSTGRES_DB: recruitment_app
+      POSTGRES_USER: cvmatcher
+      POSTGRES_PASSWORD: cvmatcher
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cvmatcher -d recruitment_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cvmatcher-backend
+    environment:
+      APP_NAME: "Smart AI Recruitment System"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      APP_KEY: base64:iAMAOVS3jLVNEiUfvU4iqCIbA0+RHORR6aew6nBt5dc=
+      DEMO_MODE: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: recruitment_app
+      DB_USERNAME: cvmatcher
+      DB_PASSWORD: cvmatcher
+      AI_ORCHESTRATOR_BASE_URL: http://ai-service:8001
+      AI_ORCHESTRATOR_TIMEOUT_SECONDS: 25
+      QUEUE_CONNECTION: sync
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+      LOG_CHANNEL: stack
+      LOG_LEVEL: debug
+      IT_SOLO_LEVELING_SIGNATURE: IT_SOLO_LEVELING_TEAM_SECRET_SEAL_CHANGE_ME
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "composer install --no-interaction --no-progress &&
+             php artisan key:generate --force 2>/dev/null || true &&
+             php artisan migrate --force &&
+             php artisan db:seed --class=DemoSeeder --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: cvmatcher-ai
+    environment:
+      APP_ENV: local
+      LOG_LEVEL: info
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./ai-service:/app
+
+volumes:
+  postgres_data:

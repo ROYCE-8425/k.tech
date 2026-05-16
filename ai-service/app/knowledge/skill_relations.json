@@ -1,0 +1,169 @@
+{
+  "_comment": "Graph-lite skill relations corpus. Defines weighted edges between canonical skill names for partial-credit matching. Each entry maps a source canonical skill to its related targets.",
+  "_version": "1.0",
+  "_relation_types": {
+    "framework_of": "Target is a framework/library built on source language. High transferability.",
+    "same_ecosystem": "Skills in the same technology ecosystem. Moderate transferability.",
+    "prerequisite": "Source is a prerequisite knowledge for target. Moderate-high transferability.",
+    "alternative_to": "Functionally equivalent alternatives. High transferability.",
+    "related_tooling": "Complementary tooling often used together. Low-moderate transferability.",
+    "adjacent_skill": "Related domain knowledge, less direct. Low transferability.",
+    "superset_of": "Source fully contains target's capabilities. Very high transferability."
+  },
+  "_similarity_scale": "0.0 (unrelated) to 0.85 (near-equivalent). Never 1.0 — only synonyms get full credit.",
+
+  "relations": [
+    {"source": "PHP", "target": "Laravel", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Laravel", "target": "PHP", "relation": "framework_of", "similarity": 0.72},
+
+    {"source": "JavaScript", "target": "React", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "JavaScript", "target": "Vue.js", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "JavaScript", "target": "Angular", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "JavaScript", "target": "Node.js", "relation": "prerequisite", "similarity": 0.60},
+    {"source": "JavaScript", "target": "Next.js", "relation": "prerequisite", "similarity": 0.45},
+    {"source": "JavaScript", "target": "Express.js", "relation": "prerequisite", "similarity": 0.50},
+
+    {"source": "TypeScript", "target": "JavaScript", "relation": "superset_of", "similarity": 0.82},
+    {"source": "JavaScript", "target": "TypeScript", "relation": "adjacent_skill", "similarity": 0.65},
+
+    {"source": "React", "target": "Vue.js", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "React", "target": "Angular", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "Vue.js", "target": "React", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "Vue.js", "target": "Angular", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "Angular", "target": "React", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "Angular", "target": "Vue.js", "relation": "alternative_to", "similarity": 0.45},
+
+    {"source": "React", "target": "Next.js", "relation": "prerequisite", "similarity": 0.65},
+    {"source": "Next.js", "target": "React", "relation": "framework_of", "similarity": 0.75},
+    {"source": "Vue.js", "target": "Nuxt.js", "relation": "prerequisite", "similarity": 0.65},
+    {"source": "Nuxt.js", "target": "Vue.js", "relation": "framework_of", "similarity": 0.75},
+
+    {"source": "React", "target": "React Native", "relation": "prerequisite", "similarity": 0.60},
+    {"source": "React Native", "target": "React", "relation": "framework_of", "similarity": 0.65},
+
+    {"source": "Node.js", "target": "Express.js", "relation": "prerequisite", "similarity": 0.65},
+    {"source": "Express.js", "target": "Node.js", "relation": "framework_of", "similarity": 0.72},
+
+    {"source": "Python", "target": "Django", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Python", "target": "FastAPI", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Python", "target": "Flask", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Django", "target": "Python", "relation": "framework_of", "similarity": 0.72},
+    {"source": "FastAPI", "target": "Python", "relation": "framework_of", "similarity": 0.72},
+    {"source": "Flask", "target": "Python", "relation": "framework_of", "similarity": 0.72},
+    {"source": "Django", "target": "FastAPI", "relation": "alternative_to", "similarity": 0.40},
+    {"source": "Django", "target": "Flask", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "FastAPI", "target": "Flask", "relation": "alternative_to", "similarity": 0.50},
+
+    {"source": "Python", "target": "Machine Learning", "relation": "prerequisite", "similarity": 0.45},
+    {"source": "Python", "target": "Pandas", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "Python", "target": "Data Analysis", "relation": "prerequisite", "similarity": 0.40},
+
+    {"source": "Java", "target": "Spring Boot", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Spring Boot", "target": "Java", "relation": "framework_of", "similarity": 0.72},
+    {"source": "Java", "target": "Kotlin", "relation": "adjacent_skill", "similarity": 0.50},
+
+    {"source": "C#", "target": ".NET", "relation": "prerequisite", "similarity": 0.70},
+    {"source": ".NET", "target": "C#", "relation": "framework_of", "similarity": 0.75},
+
+    {"source": "Ruby", "target": "Ruby on Rails", "relation": "prerequisite", "similarity": 0.60},
+    {"source": "Ruby on Rails", "target": "Ruby", "relation": "framework_of", "similarity": 0.72},
+
+    {"source": "SQL", "target": "PostgreSQL", "relation": "prerequisite", "similarity": 0.65},
+    {"source": "SQL", "target": "MySQL", "relation": "prerequisite", "similarity": 0.65},
+    {"source": "SQL", "target": "SQL Server", "relation": "prerequisite", "similarity": 0.60},
+    {"source": "SQL", "target": "Oracle DB", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "SQL", "target": "SQLite", "relation": "prerequisite", "similarity": 0.60},
+
+    {"source": "PostgreSQL", "target": "MySQL", "relation": "alternative_to", "similarity": 0.65},
+    {"source": "PostgreSQL", "target": "SQL Server", "relation": "alternative_to", "similarity": 0.50},
+    {"source": "MySQL", "target": "PostgreSQL", "relation": "alternative_to", "similarity": 0.65},
+    {"source": "MySQL", "target": "SQL Server", "relation": "alternative_to", "similarity": 0.50},
+    {"source": "PostgreSQL", "target": "SQL", "relation": "framework_of", "similarity": 0.70},
+    {"source": "MySQL", "target": "SQL", "relation": "framework_of", "similarity": 0.70},
+
+    {"source": "MongoDB", "target": "Firebase", "relation": "alternative_to", "similarity": 0.35},
+    {"source": "MongoDB", "target": "DynamoDB", "relation": "alternative_to", "similarity": 0.35},
+    {"source": "Redis", "target": "MongoDB", "relation": "adjacent_skill", "similarity": 0.25},
+
+    {"source": "Docker", "target": "Kubernetes", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "Kubernetes", "target": "Docker", "relation": "same_ecosystem", "similarity": 0.60},
+    {"source": "Docker", "target": "CI/CD", "relation": "related_tooling", "similarity": 0.40},
+
+    {"source": "AWS", "target": "GCP", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "AWS", "target": "Azure", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "GCP", "target": "AWS", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "GCP", "target": "Azure", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "Azure", "target": "AWS", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "Azure", "target": "GCP", "relation": "alternative_to", "similarity": 0.55},
+
+    {"source": "Terraform", "target": "Ansible", "relation": "alternative_to", "similarity": 0.40},
+    {"source": "Terraform", "target": "AWS", "relation": "related_tooling", "similarity": 0.35},
+    {"source": "Terraform", "target": "Kubernetes", "relation": "related_tooling", "similarity": 0.35},
+
+    {"source": "Linux", "target": "Bash/Shell", "relation": "same_ecosystem", "similarity": 0.65},
+    {"source": "Bash/Shell", "target": "Linux", "relation": "same_ecosystem", "similarity": 0.65},
+    {"source": "Linux", "target": "Docker", "relation": "related_tooling", "similarity": 0.30},
+    {"source": "Linux", "target": "Nginx", "relation": "related_tooling", "similarity": 0.30},
+
+    {"source": "REST API", "target": "GraphQL", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "GraphQL", "target": "REST API", "relation": "alternative_to", "similarity": 0.45},
+    {"source": "REST API", "target": "gRPC", "relation": "alternative_to", "similarity": 0.35},
+
+    {"source": "Git", "target": "CI/CD", "relation": "related_tooling", "similarity": 0.35},
+
+    {"source": "Machine Learning", "target": "PyTorch", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "Machine Learning", "target": "TensorFlow", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "Machine Learning", "target": "Scikit-learn", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Machine Learning", "target": "NLP", "relation": "prerequisite", "similarity": 0.45},
+    {"source": "Machine Learning", "target": "Computer Vision", "relation": "prerequisite", "similarity": 0.45},
+
+    {"source": "PyTorch", "target": "TensorFlow", "relation": "alternative_to", "similarity": 0.60},
+    {"source": "TensorFlow", "target": "PyTorch", "relation": "alternative_to", "similarity": 0.60},
+
+    {"source": "LLM", "target": "NLP", "relation": "same_ecosystem", "similarity": 0.55},
+    {"source": "LLM", "target": "LangChain", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "LLM", "target": "RAG", "relation": "prerequisite", "similarity": 0.50},
+    {"source": "LLM", "target": "OpenAI API", "relation": "related_tooling", "similarity": 0.55},
+    {"source": "LLM", "target": "Embeddings", "relation": "same_ecosystem", "similarity": 0.50},
+
+    {"source": "Pandas", "target": "NumPy", "relation": "same_ecosystem", "similarity": 0.60},
+    {"source": "Pandas", "target": "Data Analysis", "relation": "same_ecosystem", "similarity": 0.65},
+    {"source": "NumPy", "target": "Pandas", "relation": "same_ecosystem", "similarity": 0.55},
+    {"source": "Data Analysis", "target": "Tableau", "relation": "related_tooling", "similarity": 0.40},
+    {"source": "Data Analysis", "target": "Power BI", "relation": "related_tooling", "similarity": 0.40},
+    {"source": "Data Analysis", "target": "Excel", "relation": "related_tooling", "similarity": 0.35},
+    {"source": "Tableau", "target": "Power BI", "relation": "alternative_to", "similarity": 0.65},
+    {"source": "Power BI", "target": "Tableau", "relation": "alternative_to", "similarity": 0.65},
+
+    {"source": "Flutter", "target": "React Native", "relation": "alternative_to", "similarity": 0.50},
+    {"source": "React Native", "target": "Flutter", "relation": "alternative_to", "similarity": 0.50},
+    {"source": "iOS Development", "target": "Android Development", "relation": "adjacent_skill", "similarity": 0.35},
+    {"source": "Android Development", "target": "iOS Development", "relation": "adjacent_skill", "similarity": 0.35},
+
+    {"source": "Testing", "target": "CI/CD", "relation": "related_tooling", "similarity": 0.35},
+
+    {"source": "Microservices", "target": "Docker", "relation": "related_tooling", "similarity": 0.40},
+    {"source": "Microservices", "target": "Kubernetes", "relation": "related_tooling", "similarity": 0.35},
+    {"source": "Microservices", "target": "REST API", "relation": "same_ecosystem", "similarity": 0.45},
+
+    {"source": "OOP", "target": "Design Patterns", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Design Patterns", "target": "OOP", "relation": "same_ecosystem", "similarity": 0.50},
+
+    {"source": "HTML/CSS", "target": "Tailwind CSS", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "HTML/CSS", "target": "Bootstrap", "relation": "prerequisite", "similarity": 0.55},
+    {"source": "Tailwind CSS", "target": "Bootstrap", "relation": "alternative_to", "similarity": 0.50},
+    {"source": "Bootstrap", "target": "Tailwind CSS", "relation": "alternative_to", "similarity": 0.50},
+
+    {"source": "WebSocket", "target": "REST API", "relation": "adjacent_skill", "similarity": 0.30},
+    {"source": "Kafka", "target": "RabbitMQ", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "RabbitMQ", "target": "Kafka", "relation": "alternative_to", "similarity": 0.55},
+    {"source": "Kafka", "target": "Message Queue", "relation": "framework_of", "similarity": 0.70},
+    {"source": "RabbitMQ", "target": "Message Queue", "relation": "framework_of", "similarity": 0.70},
+
+    {"source": "Agile/Scrum", "target": "Testing", "relation": "related_tooling", "similarity": 0.25},
+
+    {"source": "MLOps", "target": "Machine Learning", "relation": "same_ecosystem", "similarity": 0.50},
+    {"source": "MLOps", "target": "Docker", "relation": "related_tooling", "similarity": 0.35},
+    {"source": "MLOps", "target": "CI/CD", "relation": "same_ecosystem", "similarity": 0.40}
+  ]
+}

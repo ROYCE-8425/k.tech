@@ -1,0 +1,52 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Allow API access
+    RewriteRule ^api/ - [L]
+
+    # Block direct web access to application source
+    RewriteRule ^backend(/|$) - [F,L]
+
+    # Block local/dev tooling folder if present
+    RewriteRule ^_local(/|$) - [F,L]
+
+    # Block common backup/dump/config artifacts if accidentally uploaded
+    <FilesMatch "\.(bak|old|orig|swp|sql|sqlite|sqlite3|zip|tar|tar\.gz|tgz|7z|gz|log|ini|yml|yaml)$">
+        Require all denied
+    </FilesMatch>
+
+    # Block access to dotfiles (e.g. .env)
+    <IfModule mod_authz_core.c>
+        <FilesMatch "(^\.|\.env$)">
+            Require all denied
+        </FilesMatch>
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        <FilesMatch "(^\.|\.env$)">
+            Order allow,deny
+            Deny from all
+        </FilesMatch>
+    </IfModule>
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
