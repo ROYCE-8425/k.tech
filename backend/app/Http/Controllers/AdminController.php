@@ -1226,10 +1226,36 @@ class AdminController extends Controller
             'missing_preferred_skills' => $result['missing_preferred_skills'] ?? [],
             'related_matches' => $result['related_matches'] ?? [],
             'risk_flags' => $result['risk_flags'] ?? [],
+            // Compact, human-readable agent trace — no debug payloads or provider internals
+            'agent_trace' => $result['agent_trace'] ?? [],
             'retrieval_method' => $result['retrieval_method'] ?? 'unknown',
             'pipeline_version' => $result['pipeline_version'] ?? 'unknown',
             'generated_at' => $result['generated_at'] ?? now()->toIso8601String(),
         ];
+    }
+
+    /**
+     * AI Matching X-Ray — detailed visualization of how AI evaluated a candidate.
+     *
+     * Visualization-only: does NOT recalculate or reinterpret canonical fit_score.
+     * Degrades gracefully for older results that lack agent_trace.
+     */
+    public function aiXray($applicationId)
+    {
+        $application = Application::with(['candidate', 'job.company'])->findOrFail($applicationId);
+        $this->authorizeApplication($application);
+
+        $aiResult = $application->ai_match_result;
+        if (empty($aiResult)) {
+            return redirect()
+                ->route('admin.jobs.ai-shortlist', $application->job_id)
+                ->with('error', 'Chưa có kết quả AI cho ứng viên này. Hãy nhấn "Tính lại AI" trước.');
+        }
+
+        $candidate = $application->candidate;
+        $job = $application->job;
+
+        return view('admin.ai-xray', compact('application', 'aiResult', 'candidate', 'job'));
     }
 
     /**

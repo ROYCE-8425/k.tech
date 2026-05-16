@@ -104,6 +104,7 @@ Route::middleware([RoleMiddleware::class . ':recruiter,admin', EnsureRecruiterHa
 
     // Phase 4: AI Shortlist
     Route::get('/jobs/{id}/ai-shortlist', [AdminController::class, 'aiShortlist'])->name('admin.jobs.ai-shortlist');
+    Route::get('/applications/{id}/ai-xray', [AdminController::class, 'aiXray'])->name('admin.applications.ai-xray');
     Route::post('/applications/{id}/ai-refresh', [AdminController::class, 'refreshAiMatch'])->name('admin.applications.ai-refresh');
     Route::post('/applications/{id}/ai-feedback', [AdminController::class, 'storeAiFeedback'])->name('admin.applications.ai-feedback');
 
