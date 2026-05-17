@@ -77,8 +77,6 @@ services:
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
       # Database — points to the postgres service in this compose network
       DATABASE_URL: postgresql://cvmatcher:cvmatcher@postgres:5432/recruitment_app
-    ports:
-      - "8001:8001"
     volumes:
       - ./ai-service:/app
     depends_on:
