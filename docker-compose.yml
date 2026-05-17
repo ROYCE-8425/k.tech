@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: cvmatcher-postgres
     environment:
       POSTGRES_DB: recruitment_app
@@ -10,6 +10,7 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cvmatcher -d recruitment_app"]
       interval: 5s
@@ -65,13 +66,24 @@ services:
     environment:
       APP_ENV: local
       LOG_LEVEL: info
+      # LLM provider config — pass through from host .env or set explicitly
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_EXTRACTION_MODEL: ${OPENAI_EXTRACTION_MODEL:-gpt-4o-mini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      # Embedding / RAG — OPENAI_API_KEY is required for embeddings regardless of LLM_PROVIDER
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      # Database — points to the postgres service in this compose network
+      DATABASE_URL: postgresql://cvmatcher:cvmatcher@postgres:5432/recruitment_app
     ports:
       - "8001:8001"
     volumes:
       - ./ai-service:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

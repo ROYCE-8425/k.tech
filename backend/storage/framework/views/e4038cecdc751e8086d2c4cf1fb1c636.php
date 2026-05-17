@@ -59,7 +59,7 @@
                     </svg>
                     Lịch phỏng vấn
                 </a>
-                <a href="<?php echo e(route('admin.jobs.create')); ?>" class="inline-flex items-center px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-indigo-500/30 hover:scale-105 transition-all duration-300 shine">
+                <a href="<?php echo e(route('admin.jobs.create')); ?>" class="inline-flex items-center px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-indigo-500/30 hover:scale-105 transition-all duration-300 shine" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -90,7 +90,7 @@
             <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div class="relative bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #a855f7);">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
@@ -107,7 +107,7 @@
             <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div class="relative bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #14b8a6);">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -124,7 +124,7 @@
             <div class="absolute inset-0 bg-gradient-to-r from-orange-600 to-pink-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div class="relative bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center" style="background: linear-gradient(to bottom right, #f97316, #ec4899);">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
@@ -141,7 +141,7 @@
             <div class="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div class="relative bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/50">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center" style="background: linear-gradient(to bottom right, #06b6d4, #3b82f6);">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
@@ -179,7 +179,7 @@
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Applications by Day Chart -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6">
+        <div class="glass-panel rounded-3xl p-6">
             <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
                 <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -195,7 +195,7 @@
                     <div class="flex-1 flex flex-col items-center">
                         <div class="text-sm font-bold text-gray-700 mb-2"><?php echo e($day['count']); ?></div>
                         <div class="w-full bg-gradient-to-t from-indigo-500 to-purple-500 rounded-t-lg transition-all duration-500 hover:from-indigo-600 hover:to-purple-600" 
-                             style="height: <?php echo e(max($height, 5)); ?>%; min-height: 8px;"></div>
+                             style="background: linear-gradient(to top, #6366f1, #a855f7); height: <?php echo e(max($height, 5)); ?>%; min-height: 8px;"></div>
                         <div class="text-xs text-gray-500 mt-2 font-medium"><?php echo e($day['date']); ?></div>
                     </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -203,7 +203,7 @@
         </div>
 
         <!-- Applications by Month Chart -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6">
+        <div class="glass-panel rounded-3xl p-6">
             <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
                 <svg class="w-6 h-6 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
@@ -219,7 +219,7 @@
                     <div class="flex-1 flex flex-col items-center">
                         <div class="text-sm font-bold text-gray-700 mb-2"><?php echo e($month['count']); ?></div>
                         <div class="w-full bg-gradient-to-t from-emerald-500 to-teal-500 rounded-t-lg transition-all duration-500 hover:from-emerald-600 hover:to-teal-600" 
-                             style="height: <?php echo e(max($height, 5)); ?>%; min-height: 8px;"></div>
+                             style="background: linear-gradient(to top, #10b981, #14b8a6); height: <?php echo e(max($height, 5)); ?>%; min-height: 8px;"></div>
                         <div class="text-xs text-gray-500 mt-2 font-medium"><?php echo e($month['month']); ?></div>
                     </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -230,7 +230,7 @@
     <!-- Two Column Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Upcoming Interviews -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden">
+    <div class="glass-panel rounded-3xl overflow-hidden">
             <div class="p-6 border-b border-gray-100 flex items-center justify-between">
                 <h3 class="text-xl font-bold text-gray-900 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@
                     <div class="p-4 hover:bg-gray-50 transition-colors">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-100 to-pink-100 flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-100 to-pink-100 flex items-center justify-center" style="background: linear-gradient(to bottom right, #ffedd5, #fce7f3);">
                                     <span class="text-sm font-bold text-orange-600">
                                         <?php echo e(strtoupper(substr($interview->application->candidate->name ?? 'U', 0, 1))); ?>
 
@@ -274,7 +274,7 @@
         </div>
 
         <!-- Recent Applications -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden">
+    <div class="glass-panel rounded-3xl overflow-hidden">
             <div class="p-6 border-b border-gray-100 flex items-center justify-between">
                 <h3 class="text-xl font-bold text-gray-900 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -288,7 +288,7 @@
                     <div class="p-4 hover:bg-gray-50 transition-colors">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center" style="background: linear-gradient(to bottom right, #e0e7ff, #f3e8ff);">
                                     <span class="text-sm font-bold text-indigo-600">
                                         <?php echo e(strtoupper(substr($application->candidate->name ?? 'U', 0, 1))); ?>
 
@@ -300,11 +300,15 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <?php $aiScore = is_array($application->ai_match_result) ? ($application->ai_match_result['fit_score'] ?? null) : null; ?>
+                                <?php 
+                                    $aiScore = is_array($application->ai_match_result) ? ($application->ai_match_result['fit_score'] ?? null) : null; 
+                                    if ($aiScore !== null && $aiScore > 10) {
+                                        $aiScore = $aiScore / 10;
+                                    }
+                                ?>
                                 <?php if($aiScore !== null): ?>
                                     <span class="px-2 py-1 rounded-lg bg-violet-100 text-violet-700 text-xs font-bold" title="AI Fit Score">
-                                        🤖 <?php echo e(number_format($aiScore, 0)); ?>
-
+                                        🤖 <?php echo e(number_format($aiScore, 1)); ?>/10
                                     </span>
                                 <?php endif; ?>
                                 <span class="px-2 py-1 rounded-lg text-xs font-medium
@@ -342,7 +346,7 @@
     </div>
 
     <!-- Top Jobs Section -->
-    <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden mb-8">
+    <div class="glass-panel rounded-3xl overflow-hidden mb-8">
         <div class="p-6 border-b border-gray-100">
             <h3 class="text-xl font-bold text-gray-900 flex items-center">
                 <svg class="w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,13 +361,13 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white
-                                <?php echo e($index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : ''); ?>
+                                <?php echo e($index === 0 ? 'bg-yellow-500 bg-gradient-to-br from-yellow-400 to-orange-500' : ''); ?>
 
-                                <?php echo e($index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-400' : ''); ?>
+                                <?php echo e($index === 1 ? 'bg-gray-400 bg-gradient-to-br from-gray-300 to-gray-400' : ''); ?>
 
-                                <?php echo e($index === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-400' : ''); ?>
+                                <?php echo e($index === 2 ? 'bg-orange-400 bg-gradient-to-br from-orange-300 to-orange-400' : ''); ?>
 
-                                <?php echo e($index > 2 ? 'bg-gradient-to-br from-indigo-400 to-purple-500' : ''); ?>
+                                <?php echo e($index > 2 ? 'bg-indigo-500 bg-gradient-to-br from-indigo-400 to-purple-500' : ''); ?>
 
                             ">
                                 <?php echo e($index + 1); ?>
@@ -395,7 +399,7 @@
     </div>
 
     <!-- Jobs List -->
-    <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden">
+    <div class="glass-panel rounded-3xl overflow-hidden">
         <div class="p-6 border-b border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
@@ -412,7 +416,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <!-- Company Avatar -->
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300" style="background: linear-gradient(to bottom right, #e0e7ff, #f3e8ff);">
                                     <span class="text-xl font-bold gradient-text">
                                         <?php echo e(strtoupper(substr($job->company->name ?? 'C', 0, 1))); ?>
 
@@ -474,7 +478,7 @@
 
                                 <!-- AI Shortlist CTA (primary) -->
                                 <a href="<?php echo e(route('admin.jobs.ai-shortlist', $job->id)); ?>" 
-                                   class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold hover:shadow-lg hover:shadow-violet-300/40 transition-all duration-300">
+                                   class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold hover:shadow-lg hover:shadow-violet-300/40 transition-all duration-300" style="background: linear-gradient(to right, #8b5cf6, #9333ea);">
                                     🤖 AI Shortlist
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

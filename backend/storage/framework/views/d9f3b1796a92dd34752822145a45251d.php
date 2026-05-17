@@ -40,6 +40,18 @@
         </div>
 
         
+        <?php if(session('status')): ?>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4 text-center animate-fade-in">
+                <p class="text-emerald-800 font-semibold text-sm"><?php echo e(session('status')); ?></p>
+            </div>
+        <?php endif; ?>
+        <?php if(session('error')): ?>
+            <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 text-center animate-fade-in">
+                <p class="text-red-800 font-semibold text-sm"><?php echo e(session('error')); ?></p>
+            </div>
+        <?php endif; ?>
+
+        
         <div class="bg-violet-50 border border-violet-200 rounded-xl px-4 py-3 mb-6 text-center animate-fade-in" style="animation-delay: 0.2s;">
             <p class="text-violet-800 font-bold text-sm">🧪 Chế độ Demo — Dữ liệu đã chuẩn bị sẵn, chọn vai trò để bắt đầu</p>
         </div>
@@ -131,6 +143,19 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        
+        <div class="mt-6 text-center animate-fade-in" style="animation-delay: 0.45s;">
+            <form action="<?php echo e(route('demo.reset')); ?>" method="POST" onsubmit="return confirm('⚠️ Reset sẽ xoá toàn bộ dữ liệu và khôi phục về trạng thái ban đầu. Bạn chắc chắn?');">
+                <?php echo csrf_field(); ?>
+                <button type="submit" id="btn-reset-demo"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 border border-gray-200 hover:border-red-300 rounded-xl transition-all duration-300 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Reset Demo về dữ liệu gốc
+                </button>
+            </form>
+            <p class="text-[11px] text-gray-400 mt-1">Xoá sạch và khôi phục 4 jobs + 4 applications demo</p>
         </div>
 
     </div>

@@ -64,7 +64,7 @@
         <!-- Success Message with AI Advisory -->
         @if(session('status'))
             @php $aiAdvisory = session('ai_advisory'); @endphp
-            <div class="mb-6 p-6 rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-2xl shadow-emerald-500/30" 
+            <div class="mb-6 p-6 rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-2xl shadow-emerald-500/30" style="background: linear-gradient(to right, #10b981, #14b8a6);" 
                  x-data="{ show: true }" 
                  x-show="show"
                  x-transition:enter="transition ease-out duration-300"
@@ -85,28 +85,32 @@
                         <p class="text-emerald-50 mb-3">🤖 AI đã phân tích CV của bạn cho vị trí: <strong>{{ $job->title }}</strong></p>
                         
                         @if($aiAdvisory && isset($aiAdvisory['fit_score']))
+                            @php
+                                $rawScore = $aiAdvisory['fit_score'];
+                                $score = $rawScore > 10 ? $rawScore / 10 : $rawScore;
+                                $aiAdvisory['fit_score'] = $score; // update for display
+                                
+                                if ($score >= 8) { $label = 'Xuất sắc'; $emoji = '🌟'; }
+                                elseif ($score >= 6.5) { $label = 'Tốt'; $emoji = '👍'; }
+                                elseif ($score >= 5) { $label = 'Khá'; $emoji = '✅'; }
+                                else { $label = 'Trung bình'; $emoji = '💪'; }
+                            @endphp
+
                             {{-- Full AI Advisory Panel --}}
-                            <div class="mt-4 p-5 rounded-2xl bg-white/20 border-2 border-white/40 backdrop-blur-sm">
+                            <div class="mt-4 p-5 rounded-2xl bg-indigo-900/40 border border-indigo-200/30 backdrop-blur-md">
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
-                                        <p class="text-sm text-white/90 mb-2 font-semibold">🤖 Điểm phù hợp của bạn:</p>
+                                        <p class="text-sm text-indigo-50 mb-2 font-semibold">🤖 Điểm phù hợp của bạn:</p>
                                         <div class="flex items-baseline gap-2">
-                                            <span class="text-5xl font-black">{{ number_format($aiAdvisory['fit_score'], 1) }}</span>
-                                            <span class="text-2xl font-bold text-white/90">/10</span>
+                                            <span class="text-5xl font-black text-white">{{ number_format($score, 1) }}</span>
+                                            <span class="text-2xl font-bold text-indigo-200">/10</span>
                                         </div>
                                     </div>
                                     <div class="text-center">
-                                        @php
-                                            $score = $aiAdvisory['fit_score'];
-                                            if ($score >= 8) { $label = 'Xuất sắc'; $emoji = '🌟'; }
-                                            elseif ($score >= 6.5) { $label = 'Tốt'; $emoji = '👍'; }
-                                            elseif ($score >= 5) { $label = 'Khá'; $emoji = '✅'; }
-                                            else { $label = 'Trung bình'; $emoji = '💪'; }
-                                        @endphp
                                         <div class="text-5xl mb-2">{{ $emoji }}</div>
-                                        <p class="text-lg font-bold bg-white/30 px-3 py-1 rounded-full">{{ $label }}</p>
+                                        <p class="text-lg font-bold bg-white/20 text-white px-3 py-1 rounded-full">{{ $label }}</p>
                                         @if(!empty($aiAdvisory['rank_label']))
-                                            <p class="text-xs text-white/80 mt-1">{{ $aiAdvisory['rank_label'] }}</p>
+                                            <p class="text-xs text-indigo-100 mt-1">{{ $aiAdvisory['rank_label'] }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -158,7 +162,7 @@
                                     <div class="pt-3 mt-3 border-t border-white/20">
                                         <p class="text-xs text-amber-200 flex items-start gap-1.5">
                                             <span>⚠️</span>
-                                            <span>AI chưa đủ thông tin để đánh giá chính xác. Hãy <a href="{{ route('candidate.profile') }}" class="underline font-semibold">bổ sung hồ sơ</a> để tăng độ chính xác.</span>
+                                            <span>AI chưa đủ thông tin để đánh giá chính xác. Hãy <a href="{{ route('candidate.dashboard') }}" class="underline font-semibold">bổ sung hồ sơ</a> để tăng độ chính xác.</span>
                                         </p>
                                     </div>
                                 @endif
@@ -168,7 +172,7 @@
                                         <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
-                                        <span>Kết quả này được AI phân tích tự động. Nếu bạn muốn điểm cao hơn, hãy <a href="{{ route('candidate.profile') }}" class="underline font-semibold">cập nhật hồ sơ</a> và thử nộp lại.</span>
+                                        <span>Kết quả này được AI phân tích tự động. Nếu bạn muốn điểm cao hơn, hãy <a href="{{ route('candidate.dashboard') }}" class="underline font-semibold">cập nhật hồ sơ</a> và thử nộp lại.</span>
                                     </p>
                                 </div>
                             </div>
@@ -185,7 +189,7 @@
                                     </div>
                                 </div>
                                 <div class="pt-3 border-t border-white/30">
-                                    <p class="text-sm text-white/90">CV đang được AI phân tích chi tiết. Nhà tuyển dụng sẽ xem xét sớm.</p>
+                                    <p class="text-sm text-white/90">⚠️ Hồ sơ đã tải lên thành công! Để AI tiến hành phân tích chi tiết, vui lòng kiểm tra và bấm <b>"Xác nhận & Nộp hồ sơ"</b> ở khung bên phải.</p>
                                 </div>
                             </div>
                         @else
@@ -195,7 +199,7 @@
                                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <span>Hồ sơ đã được tiếp nhận thành công! AI tạm thời chưa thể phân tích — nhà tuyển dụng vẫn sẽ xem xét đơn của bạn.</span>
+                                    <span>Hồ sơ đã tải lên thành công! Vui lòng xác nhận thông tin ở khung bên phải để AI bắt đầu chấm điểm.</span>
                                 </p>
                             </div>
                         @endif
@@ -227,7 +231,7 @@
                 <!-- Job Header Card -->
                 <div class="relative bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden">
                     <!-- Gradient Header -->
-                    <div class="relative h-48 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+                    <div class="relative h-48 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" style="background: linear-gradient(to bottom right, #4f46e5, #9333ea, #ec4899);">
                         <div class="absolute inset-0 bg-black/10"></div>
                         <div class="absolute inset-0 overflow-hidden">
                             <div class="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full"></div>
@@ -256,7 +260,7 @@
                                 <h1 class="text-3xl font-bold text-gray-900">{{ $job->title }}</h1>
                             </div>
                             @if($job->created_at->diffInDays() < 7)
-                                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold">
+                                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-sm" style="background: linear-gradient(to right, #10b981, #14b8a6);">
                                     ✨ Mới đăng
                                 </span>
                             @endif
@@ -346,7 +350,7 @@
 
                     <!-- Company Card (Candidate-profile style) -->
                     <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden mb-6" id="company-card">
-                        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+                        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                             <h2 class="text-xl font-bold text-white mb-1">🏢 Thông tin công ty</h2>
                             <p class="text-indigo-100 text-sm">Giới thiệu nhanh về đơn vị tuyển dụng</p>
                         </div>
@@ -389,7 +393,7 @@
                         <!-- Admin/Recruiter Panel -->
                         <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden" id="admin-panel">
                             <!-- Panel Header -->
-                            <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-6">
+                            <div class="bg-gradient-to-r from-violet-600 to-purple-600 p-6" style="background: linear-gradient(to right, #7c3aed, #9333ea);">
                                 <h2 class="text-xl font-bold text-white mb-1">🤖 AI Matching</h2>
                                 <p class="text-violet-100 text-sm">Xem xếp hạng AI và quản lý ứng viên</p>
                             </div>
@@ -397,7 +401,7 @@
                             <div class="p-6 space-y-4">
                                 <!-- AI Shortlist (Primary Action) -->
                                 <a href="{{ route('admin.jobs.ai-shortlist', $job->id) }}" 
-                                   class="flex items-center justify-center w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg hover:shadow-xl hover:shadow-violet-500/30 hover:scale-[1.02] transition-all duration-300">
+                                   class="flex items-center justify-center w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg hover:shadow-xl hover:shadow-violet-500/30 hover:scale-[1.02] transition-all duration-300" style="background: linear-gradient(to right, #7c3aed, #9333ea);">
                                     <span class="mr-2">🤖</span>
                                     AI Shortlist
                                 </a>
@@ -436,12 +440,12 @@
                         @guest
                             <!-- Guest: Require Login -->
                             <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden" id="apply-form">
-                                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+                                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                                     <h2 class="text-xl font-bold text-white mb-1">🔐 Đăng nhập để ứng tuyển</h2>
                                     <p class="text-indigo-100 text-sm">Bạn cần đăng nhập tài khoản Ứng tuyển để nộp đơn.</p>
                                 </div>
                                 <div class="p-6 space-y-4">
-                                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:shadow-xl hover:scale-[1.02] transition-all">
+                                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:shadow-xl hover:scale-[1.02] transition-all" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                                         </svg>
@@ -454,200 +458,341 @@
                             </div>
                         @else
                             @if(!empty($alreadyApplied) && Auth::user()->role === 'candidate')
-                                <!-- Already Applied State (with AI follow-up support) -->
+                                <!-- 3-Step AI CV Review Flow -->
                                 <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden" id="apply-form">
                                     @php
-                                        // Follow-up fields: prefer session flash (immediate after apply), fallback to computed from DB
                                         $activeFollowupFields = session('ai_followup_fields', $followupFields ?? []);
                                         $activeAdvisory = session('ai_advisory', $persistedAdvisory ?? null);
+                                        $cvExtracted = session('cv_extracted_info');
+                                        $isJustApplied = session('status') && $cvExtracted;
+                                        
+                                        if ($activeAdvisory && isset($activeAdvisory['fit_score'])) {
+                                            $rawScore = $activeAdvisory['fit_score'];
+                                            $activeAdvisory['fit_score'] = $rawScore > 10 ? $rawScore / 10 : $rawScore;
+                                        }
+
+                                        // Mapping follow-up fields to AI questions
+                                        $chatQuestions = [
+                                            'years_experience' => ['q' => '⏱️ Bạn có bao nhiêu năm kinh nghiệm làm việc trong lĩnh vực này?', 'type' => 'number', 'placeholder' => 'VD: 3'],
+                                            'key_skills' => ['q' => '🛠️ Hãy liệt kê vài kỹ năng công nghệ chính của bạn (cách nhau bằng dấu phẩy).', 'type' => 'text', 'placeholder' => 'VD: PHP, Laravel, MySQL'],
+                                            'education_level' => ['q' => '🎓 Trình độ học vấn cao nhất của bạn hiện tại là gì?', 'type' => 'select', 'options' => ['THPT', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ', 'Bootcamp/Tự học']],
+                                            'primary_role' => ['q' => '💼 Đâu là vai trò chính mà bạn tự tin nhất?', 'type' => 'select', 'options' => ['Backend Developer', 'Frontend Developer', 'Fullstack Developer', 'Mobile Developer', 'QA/Tester', 'DevOps Engineer', 'Data Analyst', 'ML Engineer', 'Product/Business Analyst']],
+                                            'english_level' => ['q' => '🇬🇧 Khả năng tiếng Anh của bạn đang ở mức nào?', 'type' => 'select', 'options' => ['Cơ bản (A1-A2)', 'Trung cấp (B1-B2)', 'Nâng cao (C1-C2)', 'Bản ngữ / Native']],
+                                            'phone' => ['q' => '📱 Số điện thoại liên hệ?', 'type' => 'text', 'placeholder' => 'VD: 0912 345 678'],
+                                        ];
+                                        $activeQuestions = [];
+                                        foreach($activeFollowupFields as $field) {
+                                            if(isset($chatQuestions[$field])) {
+                                                $activeQuestions[] = array_merge(['id' => $field], $chatQuestions[$field]);
+                                            }
+                                        }
+                                        
+                                        // Determine initial step
+                                        $initialStep = 3; // default: show result
+                                        if ($isJustApplied && $cvExtracted) {
+                                            $initialStep = 1; // just applied: show CV confirmation
+                                        } elseif ($isJustApplied && !empty($activeFollowupFields)) {
+                                            $initialStep = 2; // has follow-up questions
+                                        }
                                     @endphp
 
-                                    @if(!empty($activeFollowupFields))
-                                        {{-- AI Follow-up Form: ask only for missing fields --}}
-                                        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-6">
-                                            <h2 class="text-xl font-bold text-white mb-1">🤖 AI cần thêm vài thông tin</h2>
-                                            <p class="text-amber-50 text-sm">Bổ sung thông tin dưới đây để AI đánh giá chính xác hơn cho vị trí này.</p>
+                                    <div x-data="{
+                                        step: {{ $initialStep }},
+                                        cvInfo: {{ json_encode($cvExtracted ?? []) }},
+                                        editMode: false,
+                                        questions: {{ json_encode($activeQuestions) }},
+                                        currentQIndex: 0,
+                                        messages: [],
+                                        currentInput: '',
+                                        isSubmitting: false,
+
+                                        initChat() {
+                                            if (this.questions.length === 0) {
+                                                this.step = 3;
+                                                return;
+                                            }
+                                            this.messages = [
+                                                { type: 'ai', text: '🤖 Xin chào! Tôi cần hỏi thêm <strong>' + this.questions.length + ' câu</strong> để đánh giá chính xác hơn.' }
+                                            ];
+                                            setTimeout(() => this.askNextQuestion(), 500);
+                                        },
+
+                                        askNextQuestion() {
+                                            if (this.currentQIndex < this.questions.length) {
+                                                const q = this.questions[this.currentQIndex];
+                                                this.messages.push({ type: 'ai', text: q.q, field: q.id });
+                                                this.scrollChat();
+                                            } else {
+                                                this.messages.push({ type: 'ai', text: '✅ Cảm ơn! Đang gửi thông tin cho AI chấm điểm...' });
+                                                this.scrollChat();
+                                                setTimeout(() => this.submitFollowup(), 500);
+                                            }
+                                        },
+
+                                        answer(text, value = null) {
+                                            if (!text) return;
+                                            const val = value !== null ? value : text;
+                                            this.messages.push({ type: 'user', text: text });
+                                            const fieldId = this.questions[this.currentQIndex].id;
+                                            const inputEl = document.getElementById('followup_' + fieldId);
+                                            if (inputEl) inputEl.value = val;
+                                            this.currentInput = '';
+                                            this.currentQIndex++;
+                                            this.scrollChat();
+                                            setTimeout(() => this.askNextQuestion(), 400);
+                                        },
+
+                                        scrollChat() {
+                                            this.$nextTick(() => {
+                                                const box = document.getElementById('ai-chat-box');
+                                                if (box) box.scrollTop = box.scrollHeight;
+                                            });
+                                        },
+
+                                        submitFollowup() {
+                                            this.isSubmitting = true;
+                                            document.getElementById('followupForm_{{ $job->id }}').submit();
+                                        },
+
+                                        confirmCv() {
+                                            if (this.questions.length > 0) {
+                                                this.step = 2;
+                                                this.$nextTick(() => this.initChat());
+                                            } else {
+                                                this.submitFollowup();
+                                            }
+                                        }
+                                    }">
+                                        {{-- ═══ STEP INDICATOR ═══ --}}
+                                        <div class="px-6 pt-5 pb-3">
+                                            <div class="flex items-center justify-center gap-1 text-xs">
+                                                <template x-for="s in [1,2,3]" :key="s">
+                                                    <div class="flex items-center">
+                                                        <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300"
+                                                             :class="step >= s ? 'text-white' : 'bg-gray-100 text-gray-400'"
+                                                             :style="step >= s ? 'background: linear-gradient(135deg, #6366f1, #8b5cf6)' : ''">
+                                                            <span x-text="s"></span>
+                                                        </div>
+                                                        <div x-show="s < 3" class="w-8 h-0.5 mx-1 transition-all duration-300"
+                                                             :class="step > s ? 'bg-indigo-400' : 'bg-gray-200'"></div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="flex justify-between text-[10px] text-gray-400 mt-1 px-1">
+                                                <span :class="step === 1 && 'text-indigo-600 font-bold'">Xác nhận CV</span>
+                                                <span :class="step === 2 && 'text-indigo-600 font-bold'">Hỏi thêm</span>
+                                                <span :class="step === 3 && 'text-indigo-600 font-bold'">Kết quả AI</span>
+                                            </div>
                                         </div>
 
-                                        {{-- Show current score if available --}}
-                                        @if($activeAdvisory && isset($activeAdvisory['fit_score']))
-                                            <div class="px-6 pt-5">
-                                                <div class="flex items-center gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                                                    <div class="text-2xl font-black text-amber-700">{{ number_format($activeAdvisory['fit_score'], 1) }}/10</div>
-                                                    <div class="text-sm text-amber-800">
-                                                        Điểm hiện tại
-                                                        @if(($activeAdvisory['confidence_label'] ?? '') === 'low')
-                                                            <span class="text-amber-600 font-semibold">(độ tin cậy thấp)</span>
-                                                        @endif
+                                        {{-- ═══ STEP 1: CV Confirmation POPUP ═══ --}}
+                                        <div x-show="step === 1" x-transition class="px-6 pb-4">
+                                            <div class="text-center py-4">
+                                                <div class="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style="background: linear-gradient(135deg, #eef2ff, #e0e7ff);">
+                                                    <span class="text-2xl">📄</span>
+                                                </div>
+                                                <p class="text-sm font-semibold text-gray-700">AI đã đọc CV của bạn</p>
+                                                <p class="text-xs text-gray-400 mt-1">Nhấn để xem và xác nhận thông tin</p>
+                                                <button @click="$refs.cvModal.showModal()" type="button"
+                                                    class="mt-4 w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-[1.02]"
+                                                    style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                                    👁️ Xem thông tin CV đã trích xuất
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {{-- Fullscreen CV Preview Modal --}}
+                                        <dialog x-ref="cvModal" class="fixed inset-0 w-full h-full max-w-full max-h-full m-0 p-0 bg-transparent z-50"
+                                                style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);"
+                                                @click.self="$refs.cvModal.close()">
+                                            <div class="flex items-center justify-center min-h-screen p-4">
+                                                <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.stop>
+                                                    {{-- Modal Header --}}
+                                                    <div class="sticky top-0 z-10 p-5 rounded-t-3xl" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <h2 class="text-lg font-bold text-white">🤖 AI đã quét CV của bạn</h2>
+                                                                <p class="text-indigo-100 text-xs mt-1">Kiểm tra thông tin bên dưới</p>
+                                                            </div>
+                                                            <button @click="$refs.cvModal.close()" class="w-9 h-9 rounded-xl bg-white/15 text-white hover:bg-white/25 transition-all text-lg">✕</button>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Modal Body --}}
+                                                    <div class="p-5 space-y-3">
+                                                        <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                                            <span class="text-xl">👤</span>
+                                                            <div class="flex-1"><p class="text-[10px] text-gray-400 font-semibold uppercase">Họ tên</p><p class="text-base font-bold text-gray-800" x-text="cvInfo.name || 'Không phát hiện'"></p></div>
+                                                        </div>
+                                                        <div class="grid grid-cols-2 gap-2">
+                                                            <div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="text-base">📧</span><p class="text-[10px] text-gray-400 font-semibold uppercase mt-1">Email</p><p class="text-xs font-semibold text-gray-700 truncate" x-text="cvInfo.email || '—'"></p></div>
+                                                            <div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="text-base">📱</span><p class="text-[10px] text-gray-400 font-semibold uppercase mt-1">SĐT</p><p class="text-xs font-semibold text-gray-700" x-text="cvInfo.phone || 'Không tìm thấy'"></p></div>
+                                                        </div>
+                                                        <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                                            <div class="flex items-center gap-2 mb-2"><span class="text-base">🛠️</span><p class="text-[10px] text-gray-400 font-semibold uppercase">Kỹ năng phát hiện từ CV</p></div>
+                                                            <div class="flex flex-wrap gap-1.5">
+                                                                <template x-if="cvInfo.skills && cvInfo.skills.length > 0"><template x-for="skill in cvInfo.skills" :key="skill"><span class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background: #ede9fe; color: #6d28d9;" x-text="skill"></span></template></template>
+                                                                <template x-if="!cvInfo.skills || cvInfo.skills.length === 0"><span class="text-xs text-gray-400 italic">Không phát hiện kỹ năng từ CV</span></template>
+                                                            </div>
+                                                        </div>
+                                                        <div class="grid grid-cols-2 gap-2">
+                                                            <div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="text-lg">📊</span><p class="text-[10px] text-gray-400 font-semibold uppercase mt-1">Kinh nghiệm</p><p class="text-sm font-bold text-gray-800" x-text="cvInfo.experience_years ? cvInfo.experience_years + ' năm' : 'Chưa rõ'"></p></div>
+                                                            <div class="p-3 rounded-xl bg-gray-50 border border-gray-100"><span class="text-lg">🎓</span><p class="text-[10px] text-gray-400 font-semibold uppercase mt-1">Học vấn</p><p class="text-sm font-bold text-gray-800 leading-tight" x-text="cvInfo.education || 'Chưa rõ'"></p></div>
+                                                        </div>
+                                                        <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                                            <p class="text-[10px] text-gray-400 font-semibold uppercase mb-1.5">📝 Nội dung CV trích xuất</p>
+                                                            <p class="text-xs text-gray-600 leading-relaxed max-h-32 overflow-y-auto" x-text="cvInfo.summary ? cvInfo.summary + '...' : 'Không trích xuất được'"></p>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Modal Footer --}}
+                                                    <div class="sticky bottom-0 p-5 bg-white border-t border-gray-100 rounded-b-3xl">
+                                                        <button @click="$refs.cvModal.close(); confirmCv();" type="button"
+                                                            class="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all hover:scale-[1.02] hover:shadow-lg"
+                                                            style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                                            ✅ Xác nhận & tiếp tục chấm điểm AI
+                                                        </button>
+                                                        <p class="text-center text-[10px] text-gray-400 mt-2">AI sẽ chấm điểm sau khi bạn xác nhận</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endif
+                                        </dialog>
 
-                                        <form action="{{ route('jobs.ai-followup', $job->id) }}" method="POST" class="p-6 space-y-4" id="followupForm_{{ $job->id }}">
-                                            @csrf
 
-                                            @if($errors->any())
-                                                <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
-                                                    <ul class="list-disc list-inside text-red-700 text-sm space-y-1">
-                                                        @foreach($errors->all() as $error)
-                                                            <li>{{ $error }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('phone', $activeFollowupFields))
+                                        {{-- ═══ STEP 2: AI Chat Follow-up ═══ --}}
+                                        <div x-show="step === 2" x-transition class="flex flex-col">
+                                            {{-- Chat Header --}}
+                                            <div class="p-4 flex items-center gap-3" style="background: linear-gradient(to right, #6366f1, #9333ea);">
+                                                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">🤖</div>
                                                 <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">📱 Số điện thoại</label>
-                                                    <input type="tel" name="followup_phone" value="{{ old('followup_phone') }}"
-                                                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
-                                                           placeholder="0912 345 678">
+                                                    <h2 class="text-lg font-bold text-white leading-tight">Trợ lý AI</h2>
+                                                    <p class="text-indigo-100 text-xs">Hỏi thêm thông tin để chấm điểm chính xác</p>
                                                 </div>
-                                            @endif
+                                            </div>
 
-                                            @if(in_array('years_experience', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">⏱️ Số năm kinh nghiệm</label>
-                                                    <input type="number" name="followup_years_experience" value="{{ old('followup_years_experience') }}"
-                                                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
-                                                           placeholder="VD: 3" min="0" max="50" step="0.5">
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('primary_role', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">💼 Vai trò chính</label>
-                                                    <select name="followup_primary_role"
-                                                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all">
-                                                        <option value="">-- Chọn vai trò --</option>
-                                                        @foreach(['Backend Developer','Frontend Developer','Fullstack Developer','Mobile Developer','QA/Tester','DevOps Engineer','Data Analyst','ML Engineer','Product/Business Analyst'] as $role)
-                                                            <option value="{{ $role }}" {{ old('followup_primary_role') === $role ? 'selected' : '' }}>{{ $role }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('key_skills', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">🛠️ Kỹ năng chính</label>
-                                                    <input type="text" name="followup_key_skills" value="{{ old('followup_key_skills') }}"
-                                                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
-                                                           placeholder="VD: PHP, Laravel, MySQL, Docker">
-                                                    <p class="text-xs text-gray-500 mt-1">Phân cách bằng dấu phẩy</p>
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('education_level', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">🎓 Trình độ học vấn</label>
-                                                    <select name="followup_education_level"
-                                                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all">
-                                                        <option value="">-- Chọn trình độ --</option>
-                                                        @foreach(['THPT','Trung cấp','Cao đẳng','Đại học','Thạc sĩ','Tiến sĩ','Bootcamp/Tự học'] as $edu)
-                                                            <option value="{{ $edu }}" {{ old('followup_education_level') === $edu ? 'selected' : '' }}>{{ $edu }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('english_level', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">🇬🇧 Trình độ tiếng Anh</label>
-                                                    <select name="followup_english_level"
-                                                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all">
-                                                        <option value="">-- Chọn trình độ --</option>
-                                                        <option value="basic" {{ old('followup_english_level') === 'basic' ? 'selected' : '' }}>Cơ bản (A1-A2)</option>
-                                                        <option value="intermediate" {{ old('followup_english_level') === 'intermediate' ? 'selected' : '' }}>Trung cấp (B1-B2)</option>
-                                                        <option value="advanced" {{ old('followup_english_level') === 'advanced' ? 'selected' : '' }}>Nâng cao (C1-C2)</option>
-                                                        <option value="native" {{ old('followup_english_level') === 'native' ? 'selected' : '' }}>Bản ngữ / Native</option>
-                                                    </select>
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('portfolio_url', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">🌐 Portfolio / Website</label>
-                                                    <input type="url" name="followup_portfolio_url" value="{{ old('followup_portfolio_url') }}"
-                                                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
-                                                           placeholder="https://myportfolio.com">
-                                                </div>
-                                            @endif
-
-                                            @if(in_array('github_url', $activeFollowupFields))
-                                                <div>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">🐙 GitHub</label>
-                                                    <input type="url" name="followup_github_url" value="{{ old('followup_github_url') }}"
-                                                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
-                                                           placeholder="https://github.com/username">
-                                                </div>
-                                            @endif
-
-                                            <button type="submit"
-                                                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-base hover:shadow-xl hover:shadow-amber-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
-                                                    id="followupSubmitBtn_{{ $job->id }}">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                </svg>
-                                                Gửi & AI đánh giá lại
-                                            </button>
-
-                                            <p class="text-xs text-gray-500 text-center">
-                                                Thông tin sẽ được lưu vào hồ sơ của bạn để sử dụng cho các lần ứng tuyển sau.
-                                            </p>
-                                        </form>
-
-                                        <div class="px-6 pb-6 space-y-3">
-                                            <a href="{{ route('candidate.applications') }}" class="inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-gray-100 text-gray-600 font-semibold text-sm hover:bg-gray-200 transition-all">
-                                                Xem đơn ứng tuyển của tôi
-                                            </a>
-                                        </div>
-                                    @else
-                                        {{-- Standard already-applied state (no follow-up needed) --}}
-                                        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6">
-                                            <h2 class="text-xl font-bold text-white mb-1">✅ Bạn đã ứng tuyển</h2>
-                                            <p class="text-emerald-100 text-sm">Đơn của bạn đã được ghi nhận.</p>
-                                        </div>
-
-                                        {{-- Show persisted advisory summary if available --}}
-                                        @if($activeAdvisory && isset($activeAdvisory['fit_score']))
-                                            <div class="px-6 pt-5">
-                                                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
-                                                    <div class="flex items-center justify-between mb-2">
-                                                        <p class="text-sm font-semibold text-emerald-800">🤖 Điểm phù hợp AI</p>
-                                                        <span class="text-2xl font-black text-emerald-700">{{ number_format($activeAdvisory['fit_score'], 1) }}/10</span>
+                                            {{-- Chat Messages --}}
+                                            <div id="ai-chat-box" class="p-5 bg-gray-50/50 space-y-3 max-h-[350px] overflow-y-auto scroll-smooth">
+                                                <template x-for="(msg, idx) in messages" :key="idx">
+                                                    <div class="flex w-full" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
+                                                        <template x-if="msg.type === 'ai'">
+                                                            <div class="flex gap-2 max-w-[85%]">
+                                                                <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-1" style="background: linear-gradient(135deg, #818cf8, #a855f7);">AI</div>
+                                                                <div class="bg-white px-3 py-2.5 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100 text-sm text-gray-700" x-html="msg.text"></div>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="msg.type === 'user'">
+                                                            <div class="px-3 py-2.5 rounded-2xl rounded-tr-sm shadow-sm text-sm text-white max-w-[85%]" style="background: #6366f1;" x-text="msg.text"></div>
+                                                        </template>
                                                     </div>
+                                                </template>
+                                            </div>
+
+                                            {{-- Chat Input --}}
+                                            <div class="p-4 bg-white border-t border-gray-100" x-show="currentQIndex < questions.length && !isSubmitting">
+                                                <template x-if="questions[currentQIndex]">
+                                                    <div>
+                                                        <template x-if="questions[currentQIndex].type === 'text' || questions[currentQIndex].type === 'number'">
+                                                            <div class="flex gap-2">
+                                                                <input :type="questions[currentQIndex].type"
+                                                                       x-model="currentInput"
+                                                                       @keydown.enter="answer(currentInput)"
+                                                                       :placeholder="questions[currentQIndex].placeholder"
+                                                                       class="flex-1 px-4 py-2.5 bg-gray-100 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-xl transition-all text-sm outline-none border border-transparent">
+                                                                <button @click="answer(currentInput)" :disabled="!currentInput"
+                                                                        class="w-10 h-10 rounded-xl text-white flex items-center justify-center transition-colors disabled:opacity-50"
+                                                                        style="background: #6366f1;">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                                                </button>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="questions[currentQIndex].type === 'select'">
+                                                            <div class="flex flex-wrap gap-2">
+                                                                <template x-for="opt in questions[currentQIndex].options">
+                                                                    <button @click="answer(opt, opt)" class="px-3 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl text-sm font-medium transition-colors border border-indigo-100" x-text="opt"></button>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            {{-- Hidden Form --}}
+                                            <form action="{{ route('jobs.ai-followup', $job->id) }}" method="POST" id="followupForm_{{ $job->id }}" class="hidden">
+                                                @csrf
+                                                @foreach(['phone', 'years_experience', 'primary_role', 'key_skills', 'education_level', 'english_level', 'portfolio_url', 'github_url'] as $field)
+                                                    <input type="hidden" name="followup_{{ $field }}" id="followup_{{ $field }}">
+                                                @endforeach
+                                            </form>
+                                        </div>
+
+                                        {{-- ═══ STEP 3: AI Result ═══ --}}
+                                        <div x-show="step === 3" x-transition>
+                                            @if($activeAdvisory && isset($activeAdvisory['fit_score']))
+                                                @php
+                                                    $score = $activeAdvisory['fit_score'];
+                                                    if ($score >= 8) { $label = 'Xuất sắc'; $emoji = '🏆'; $color = '#10b981'; $bg = '#d1fae5'; }
+                                                    elseif ($score >= 6.5) { $label = 'Tốt'; $emoji = '👍'; $color = '#3b82f6'; $bg = '#dbeafe'; }
+                                                    elseif ($score >= 5) { $label = 'Khá'; $emoji = '✅'; $color = '#f59e0b'; $bg = '#fef3c7'; }
+                                                    else { $label = 'Cần cải thiện'; $emoji = '💪'; $color = '#ef4444'; $bg = '#fee2e2'; }
+                                                @endphp
+                                                <div class="p-6">
+                                                    <div class="text-center mb-4">
+                                                        <div class="text-4xl mb-2">{{ $emoji }}</div>
+                                                        <div class="flex items-baseline justify-center gap-1">
+                                                            <span class="text-4xl font-black" style="color: {{ $color }};">{{ number_format($score, 1) }}</span>
+                                                            <span class="text-xl font-bold text-gray-400">/10</span>
+                                                        </div>
+                                                        <p class="text-sm font-bold mt-1" style="color: {{ $color }};">{{ $label }}</p>
+                                                    </div>
+
                                                     @if(!empty($activeAdvisory['matched_skills']))
-                                                        <div class="flex flex-wrap gap-1 mt-2">
-                                                            @foreach(array_slice($activeAdvisory['matched_skills'], 0, 5) as $skill)
-                                                                <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-medium">{{ $skill }}</span>
-                                                            @endforeach
-                                                            @if(count($activeAdvisory['matched_skills']) > 5)
-                                                                <span class="px-2 py-0.5 rounded-lg bg-emerald-100/50 text-emerald-600 text-xs">+{{ count($activeAdvisory['matched_skills']) - 5 }}</span>
-                                                            @endif
+                                                        <div class="p-3 rounded-xl border border-gray-100 mb-3">
+                                                            <p class="text-xs font-semibold text-gray-500 mb-2">✅ Kỹ năng khớp</p>
+                                                            <div class="flex flex-wrap gap-1">
+                                                                @foreach($activeAdvisory['matched_skills'] as $skill)
+                                                                    <span class="px-2 py-0.5 rounded-lg text-xs font-medium" style="background: #d1fae5; color: #065f46;">{{ $skill }}</span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if(!empty($activeAdvisory['missing_skills']))
+                                                        <div class="p-3 rounded-xl border border-gray-100 mb-3">
+                                                            <p class="text-xs font-semibold text-gray-500 mb-2">❌ Kỹ năng thiếu</p>
+                                                            <div class="flex flex-wrap gap-1">
+                                                                @foreach($activeAdvisory['missing_skills'] as $skill)
+                                                                    <span class="px-2 py-0.5 rounded-lg text-xs font-medium" style="background: #fee2e2; color: #991b1b;">{{ $skill }}</span>
+                                                                @endforeach
+                                                            </div>
                                                         </div>
                                                     @endif
                                                 </div>
-                                            </div>
-                                        @endif
+                                            @else
+                                                <div class="p-6 text-center">
+                                                    <div class="text-4xl mb-2">📝</div>
+                                                    <p class="text-sm font-semibold text-gray-700">Đơn đã được ghi nhận</p>
+                                                    <p class="text-xs text-gray-500 mt-1">Nhà tuyển dụng sẽ xem xét sớm.</p>
+                                                </div>
+                                            @endif
 
-                                        <div class="p-6 space-y-4">
-                                            <a href="{{ route('candidate.applications') }}" class="inline-flex items-center justify-center w-full py-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition-all">
-                                                Xem đơn ứng tuyển của tôi
-                                            </a>
-                                            <a href="{{ route('home') }}" class="inline-flex items-center justify-center w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all">
-                                                Tìm việc khác
-                                            </a>
+                                            <div class="px-6 pb-6 space-y-3">
+                                                <a href="{{ route('candidate.applications') }}" class="inline-flex items-center justify-center w-full py-3 rounded-xl text-white font-semibold transition-all hover:scale-[1.02]" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                                    Xem đơn ứng tuyển của tôi
+                                                </a>
+                                                <a href="{{ route('home') }}" class="inline-flex items-center justify-center w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all">
+                                                    Tìm việc khác
+                                                </a>
+                                            </div>
                                         </div>
-                                    @endif
+                                    </div>
                                 </div>
                             @elseif(Auth::user()->role === 'candidate')
                                 <!-- Application Form (Candidate only) -->
                                 <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden" id="apply-form">
                                 <!-- Form Header -->
-                                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
+                                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                                     <h2 class="text-xl font-bold text-white mb-1">Ứng tuyển ngay</h2>
-                                    <p class="text-indigo-100 text-sm">Chọn tải CV hoặc tạo CV nhanh bằng hộp thoại</p>
+                                    <p class="text-indigo-100 text-sm">Upload CV của bạn (PDF, DOC, DOCX) — AI sẽ tự động đọc và phân tích</p>
                                 </div>
 
                                 <!-- Form Body -->
@@ -719,61 +864,24 @@
                                            placeholder="0912 345 678">
                                 </div>
 
-                                <!-- Cover Letter -->
-                                <div>
-                                    <label for="cover_letter_{{ $job->id }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Thư giới thiệu
-                                    </label>
-                                    <textarea name="cover_letter" 
-                                              id="cover_letter_{{ $job->id }}" 
-                                              rows="4"
-                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all input-modern @error('cover_letter') border-red-400 @enderror"
-                                              placeholder="Giới thiệu ngắn về bạn...">{{ old('cover_letter') }}</textarea>
-                                    @error('cover_letter')
-                                        <p class="mt-2 text-sm text-red-500 flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-
-                                <!-- CV Mode -->
-                                <div class="rounded-2xl border border-gray-100 bg-gray-50/40 p-4">
-                                    <p class="text-sm font-semibold text-gray-800 mb-3">Bạn muốn nộp CV theo cách nào?</p>
-                                    <div class="grid grid-cols-1 gap-3">
-                                        <label class="flex items-start gap-3 p-3 rounded-xl bg-white border border-gray-200 cursor-pointer hover:border-indigo-300 transition-all">
-                                            <input type="radio" name="cv_mode_radio" value="upload" {{ old('cv_mode', 'upload') === 'upload' ? 'checked' : '' }} class="mt-1" onclick="setCvMode_{{ $job->id }}('upload')">
-                                            <div>
-                                                <div class="font-semibold text-gray-900">Tải file CV</div>
-                                                <div class="text-xs text-gray-500">DOC, DOCX, PDF (khuyến nghị)</div>
-                                            </div>
-                                        </label>
-                                        <label class="flex items-start gap-3 p-3 rounded-xl bg-white border border-gray-200 cursor-pointer hover:border-indigo-300 transition-all">
-                                            <input type="radio" name="cv_mode_radio" value="form" {{ old('cv_mode') === 'form' ? 'checked' : '' }} class="mt-1" onclick="setCvMode_{{ $job->id }}('form')">
-                                            <div class="flex-1">
-                                                <div class="font-semibold text-gray-900">Tạo CV nhanh bằng hộp thoại</div>
-                                                <div class="text-xs text-gray-500">Điền mô tả + học vấn + ảnh minh chứng</div>
-                                            </div>
-                                            <button type="button" id="openCvDialogBtn_{{ $job->id }}" onclick="openCvDialog_{{ $job->id }}()" class="ml-auto px-3 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition-all">
-                                                Mở hộp thoại
-                                            </button>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- CV Upload -->
+                                                                                                <!-- CV Upload -->
                                 <div id="cv_upload_section_{{ $job->id }}">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                                         CV của bạn <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="relative">
+                                    <div class="relative"
+                                         x-data="{ dragging: false }"
+                                         @dragover.prevent="dragging = true"
+                                         @dragleave.prevent="dragging = false"
+                                         @drop.prevent="dragging = false; if ($event.dataTransfer.files.length) { document.getElementById('cv_file_{{ $job->id }}').files = $event.dataTransfer.files; document.getElementById('cv_file_{{ $job->id }}').dispatchEvent(new Event('change')); }">
                                         <input type="file" 
                                                name="cv_file" 
                                                id="cv_file_{{ $job->id }}" 
                                                accept=".doc,.docx,.pdf"
                                                class="sr-only">
                                         <label for="cv_file_{{ $job->id }}" 
-                                               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition-all duration-300 @error('cv_file') border-red-400 @enderror">
+                                               :class="dragging ? 'border-indigo-500 bg-indigo-50/50 scale-[1.02]' : 'border-gray-300'"
+                                               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition-all duration-300 @error('cv_file') border-red-400 @enderror">
                                             <div class="flex flex-col items-center justify-center pt-5 pb-6" id="upload-placeholder_{{ $job->id }}">
                                                 <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-3">
                                                     <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -781,7 +889,7 @@
                                                     </svg>
                                                 </div>
                                                 <p class="text-sm text-gray-600 font-medium">Kéo thả hoặc <span class="text-indigo-600">chọn file</span></p>
-                                                <p class="text-xs text-gray-400 mt-1">DOC, DOCX, PDF (Max 5MB)</p>
+                                                <p class="text-xs text-gray-400 mt-1">PDF, DOC, DOCX (Max 5MB) — AI sẽ tự đọc nội dung</p>
                                             </div>
                                             <div class="hidden flex-col items-center justify-center pt-5 pb-6" id="upload-success_{{ $job->id }}">
                                                 <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
@@ -801,42 +909,10 @@
                                     @enderror
                                 </div>
 
-                                <!-- CV Form Data (submitted when cv_mode=form) -->
-                                <div id="cv_form_section_{{ $job->id }}" class="hidden">
-                                    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200">
-                                        <p class="text-sm text-amber-800 font-semibold">Bạn đang chọn “Tạo CV nhanh”. Hãy mở hộp thoại và điền đầy đủ thông tin trước khi gửi.</p>
-                                    </div>
-
-                                    <input type="hidden" name="self_description" id="self_description_{{ $job->id }}" value="{{ old('self_description', $currentCandidate?->profile_data['cv_quick']['self_description'] ?? '') }}">
-                                    <input type="hidden" name="education_json" id="education_json_{{ $job->id }}" value="{{ old('education_json', !empty($currentCandidate?->profile_data['cv_quick']['education'] ?? null) ? json_encode($currentCandidate->profile_data['cv_quick']['education']) : '') }}">
-                                    <input type="hidden" name="work_experiences_json" id="work_experiences_json_{{ $job->id }}" value="{{ old('work_experiences_json', !empty($currentCandidate?->profile_data['cv_quick']['work_experiences'] ?? null) ? json_encode($currentCandidate->profile_data['cv_quick']['work_experiences']) : '') }}">
-                                    <input type="hidden" name="skills_json" id="skills_json_{{ $job->id }}" value="{{ old('skills_json', !empty($currentCandidate?->profile_data['cv_quick']['skills'] ?? null) ? json_encode($currentCandidate->profile_data['cv_quick']['skills']) : '') }}">
-                                    <input type="hidden" name="certifications_json" id="certifications_json_{{ $job->id }}" value="{{ old('certifications_json', !empty($currentCandidate?->profile_data['cv_quick']['certifications'] ?? null) ? json_encode($currentCandidate->profile_data['cv_quick']['certifications']) : '') }}">
-
-                                    @error('self_description')
-                                        <p class="mt-3 text-sm text-red-500 flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                    @error('education_json')
-                                        <p class="mt-2 text-sm text-red-500 flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                    @error('education_proofs')
-                                        <p class="mt-2 text-sm text-red-500 flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                                            {{ $message }}
-                                        </p>
-                                    @enderror
-                                </div>
-
-                                    <!-- Submit Button -->
+                                                                    <!-- Submit Button -->
                                     <button type="submit" 
                                             id="submitBtn_{{ $job->id }}"
-                                            class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] transition-all duration-300 shine flex items-center justify-center">
+                                            class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] transition-all duration-300 shine flex items-center justify-center" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                                         <svg class="w-5 h-5 mr-2" id="submitIcon_{{ $job->id }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                         </svg>
@@ -848,7 +924,7 @@
                                     </button>
 
                                     <!-- Scoring Loading State -->
-                                    <div id="scoringProgress_{{ $job->id }}" class="hidden p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200">
+                                    <div id="scoringProgress_{{ $job->id }}" class="hidden p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200" style="background: linear-gradient(to right, #faf5ff, #eef2ff);">
                                         <div class="flex items-center gap-3">
                                             <svg class="animate-spin w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -889,7 +965,7 @@
     <!-- CV Builder Dialog -->
     <dialog id="cvDialog_{{ $job->id }}" class="rounded-3xl p-0 w-full max-w-2xl">
         <div class="bg-white rounded-3xl overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-bold text-white">Tạo CV nhanh</h3>
@@ -1991,7 +2067,17 @@
         }
 
         if (cvFileInput) {
+            let cachedFile = null;
             cvFileInput.addEventListener('change', function(e) {
+                // If user selected a file, cache it. If they clicked cancel, restore the cached file.
+                if (e.target.files && e.target.files.length > 0) {
+                    cachedFile = e.target.files[0];
+                } else if (cachedFile) {
+                    const dt = new DataTransfer();
+                    dt.items.add(cachedFile);
+                    e.target.files = dt.files;
+                }
+
                 const fileName = e.target.files[0]?.name;
                 const placeholder = document.getElementById('upload-placeholder_{{ $job->id }}');
                 const success = document.getElementById('upload-success_{{ $job->id }}');
@@ -2033,5 +2119,13 @@
                 form.submit();
             }
         }
+
+        // Global drag and drop prevention to stop browser from opening files if dropped outside the zone
+        window.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        window.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
     </script>
 </x-layouts.app>

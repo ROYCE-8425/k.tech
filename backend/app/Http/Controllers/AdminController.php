@@ -1226,6 +1226,7 @@ class AdminController extends Controller
             'missing_preferred_skills' => $result['missing_preferred_skills'] ?? [],
             'related_matches' => $result['related_matches'] ?? [],
             'risk_flags' => $result['risk_flags'] ?? [],
+            'multi_agent_council' => $result['multi_agent_council'] ?? null,
             // Compact, human-readable agent trace — no debug payloads or provider internals
             'agent_trace' => $result['agent_trace'] ?? [],
             'retrieval_method' => $result['retrieval_method'] ?? 'unknown',
@@ -1294,5 +1295,45 @@ class AdminController extends Controller
                 'updated_at' => $feedback->updated_at->format('d/m/Y H:i'),
             ],
         ]);
+    }
+
+    /**
+     * Phase 19: AI Decision Lab — compare reasoning modes for a single application.
+     *
+     * Shows how different reasoning layers (baseline, graph 1-hop, 2-hop, feedback)
+     * affect the same candidate-job match. Diagnostic/interpretive only.
+     * Does NOT modify canonical persisted fit_score.
+     *
+     * Graceful fallback: if AI service is unavailable, shows persisted canonical
+     * result with an explanation that live comparison requires the AI service.
+     */
+    public function aiDecisionLab($applicationId)
+    {
+        $application = Application::with(['candidate', 'job.company'])->findOrFail($applicationId);
+        $this->authorizeApplication($application);
+
+        $candidate = $application->candidate;
+        $job = $application->job;
+        $aiResult = $application->ai_match_result;
+
+        // Try live comparison via AI service
+        $comparison = null;
+        $comparisonError = null;
+
+        try {
+            $aiClient = app(AIOrchestratorClient::class);
+            $payload = $this->buildAiMatchPayload($candidate, $job, $application);
+            $comparison = $aiClient->compareModes($payload);
+        } catch (\Throwable $e) {
+            Log::info('AI Decision Lab: live comparison unavailable', [
+                'application_id' => $application->id,
+                'error' => $e->getMessage(),
+            ]);
+            $comparisonError = 'AI service tạm thời không khả dụng — hiển thị kết quả đã lưu.';
+        }
+
+        return view('admin.ai-decision-lab', compact(
+            'application', 'candidate', 'job', 'aiResult', 'comparison', 'comparisonError'
+        ));
     }
 }

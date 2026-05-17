@@ -35,7 +35,7 @@
     </div>
 
     <!-- Score Legend -->
-    <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-4 mb-6">
+    <div class="glass-panel rounded-2xl p-4 mb-6">
         <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
             <span class="text-gray-500 font-medium">AI Fit Score:</span>
             <div class="flex items-center">
@@ -160,7 +160,7 @@
                     $conf = $confLabels[$item['confidence_label']] ?? $confLabels['low'];
                 @endphp
 
-                <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden animate-fade-in {{ $index === 0 ? 'ring-2 ring-violet-200' : '' }}" style="animation-delay: {{ $index * 0.03 }}s;"
+                <div class="glass-card rounded-2xl overflow-hidden animate-fade-in {{ $index === 0 ? 'ring-2 ring-violet-200' : '' }}" style="animation-delay: {{ $index * 0.03 }}s;"
                      x-data="{ expanded: {{ $index === 0 ? 'true' : 'false' }} }">
 
                     <!-- Main Row -->
@@ -361,6 +361,10 @@
                                                class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-sm font-semibold hover:bg-indigo-600 hover:text-white transition-all duration-200">
                                                 🔬 X-Ray
                                             </a>
+                                            <a href="{{ route('admin.applications.ai-decision-lab', $item['application_id']) }}"
+                                               class="inline-flex items-center px-4 py-2 rounded-xl bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-600 hover:text-white transition-all duration-200">
+                                                🧪 Decision Lab
+                                            </a>
                                         @endif
 
                                         <form action="{{ route('admin.applications.ai-refresh', $item['application_id']) }}" method="POST"
@@ -491,7 +495,7 @@
         </div>
     @else
         <!-- Empty State -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-16 text-center">
+        <div class="glass-panel rounded-3xl p-16 text-center">
             <div class="relative inline-block mb-8">
                 <div class="absolute inset-0 bg-violet-100 rounded-full blur-2xl opacity-60"></div>
                 <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">

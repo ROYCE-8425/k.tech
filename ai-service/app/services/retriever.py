@@ -8,6 +8,9 @@ and graceful fallback with 4 explicit retrieval modes:
   2. fallback_db_no_embedding — DB available but embeddings missing
   3. fallback_db_unavailable  — DB connection failed
   4. fallback_static    — no DB, using in-memory corpus
+
+Phase 18: operational hardening — clearer status, backfill reporting,
+runtime mode tracking.
 """
 from __future__ import annotations
 
@@ -143,6 +146,14 @@ _SEED_DOCUMENTS: list[dict[str, Any]] = [
 
 
 # ---------------------------------------------------------------------------
+# Module-level retrieval mode tracking
+# ---------------------------------------------------------------------------
+
+_last_retrieval_mode: str = "not_yet_used"
+_last_seed_status: dict[str, Any] = {}
+
+
+# ---------------------------------------------------------------------------
 # Retriever
 # ---------------------------------------------------------------------------
 
@@ -193,22 +204,31 @@ class KnowledgeRetriever:
         self, query: str, top_k: int, pool,
     ) -> RetrievalResult | None:
         """Attempt full pgvector similarity search. Returns None if not possible."""
+        # Check pgvector availability first
+        from app.services.db import check_pgvector_available
+        if not await check_pgvector_available():
+            return None
+
         embedding = await self.embed_text(query)
         if embedding is None:
             return None  # can't do vector search without embedding
 
-        rows = await pool.fetch(
-            """
-            SELECT source, title, content,
-                   1 - (embedding <=> $1::vector) AS similarity
-            FROM knowledge_documents
-            WHERE embedding IS NOT NULL
-            ORDER BY embedding <=> $1::vector
-            LIMIT $2
-            """,
-            str(embedding),
-            top_k,
-        )
+        try:
+            rows = await pool.fetch(
+                """
+                SELECT source, title, content,
+                       1 - (embedding <=> $1::vector) AS similarity
+                FROM knowledge_documents
+                WHERE embedding IS NOT NULL
+                ORDER BY embedding <=> $1::vector
+                LIMIT $2
+                """,
+                str(embedding),
+                top_k,
+            )
+        except Exception as exc:
+            logger.warning("pgvector query failed: %s", exc)
+            return None
 
         if not rows:
             return None
@@ -241,18 +261,28 @@ class KnowledgeRetriever:
                 notes=["No query keywords, using static corpus"],
             )
 
-        # Build ILIKE conditions for keyword search
-        conditions = " OR ".join(
-            f"LOWER(content) LIKE '%' || ${i+1} || '%'"
-            for i in range(len(keywords))
-        )
-        query_sql = f"""
-            SELECT source, title, content
-            FROM knowledge_documents
-            WHERE {conditions}
-            LIMIT ${ len(keywords) + 1 }
-        """
-        rows = await pool.fetch(query_sql, *keywords, top_k)
+        # Check if table has content column (it might have been created without vector)
+        try:
+            # Build ILIKE conditions for keyword search
+            conditions = " OR ".join(
+                f"LOWER(content) LIKE '%' || ${i+1} || '%'"
+                for i in range(len(keywords))
+            )
+            query_sql = f"""
+                SELECT source, title, content
+                FROM knowledge_documents
+                WHERE {conditions}
+                LIMIT ${ len(keywords) + 1 }
+            """
+            rows = await pool.fetch(query_sql, *keywords, top_k)
+        except Exception as exc:
+            logger.warning("DB keyword search failed: %s", exc)
+            return RetrievalResult(
+                evidence=list(_STATIC_CORPUS),
+                retrieval_method="fallback_db_no_embedding",
+                doc_count=len(_STATIC_CORPUS),
+                notes=[f"DB keyword search error: {exc}"],
+            )
 
         if not rows:
             return RetrievalResult(
@@ -300,7 +330,19 @@ class KnowledgeRetriever:
         self, query: str, top_k: int = 5,
     ) -> RetrievalResult:
         """Full retrieval with structured metadata."""
+        global _last_retrieval_mode
         start = time.monotonic()
+
+        # Check if forced static mode
+        if os.getenv("RETRIEVAL_FALLBACK_ONLY", "").strip().lower() in ("true", "1", "yes"):
+            _last_retrieval_mode = "fallback_static"
+            return RetrievalResult(
+                evidence=list(_STATIC_CORPUS),
+                retrieval_method="fallback_static",
+                doc_count=len(_STATIC_CORPUS),
+                latency_ms=(time.monotonic() - start) * 1000,
+                notes=["RETRIEVAL_FALLBACK_ONLY is enabled"],
+            )
 
         try:
             from app.services.db import get_pool
@@ -310,17 +352,20 @@ class KnowledgeRetriever:
             pgv_result = await self._retrieve_pgvector(query, top_k, pool)
             if pgv_result is not None:
                 pgv_result.latency_ms = (time.monotonic() - start) * 1000
+                _last_retrieval_mode = "pgvector"
                 return pgv_result
 
             # pgvector failed (no embedding) — try text-based DB search
-            logger.info("Embedding unavailable, trying DB text fallback")
+            logger.info("pgvector retrieval unavailable, trying DB text fallback")
             db_result = await self._retrieve_db_text(query, top_k, pool)
             db_result.latency_ms = (time.monotonic() - start) * 1000
+            _last_retrieval_mode = db_result.retrieval_method
             return db_result
 
         except Exception as exc:
             elapsed = (time.monotonic() - start) * 1000
             logger.warning("DB retrieval failed (%s), using static fallback", exc)
+            _last_retrieval_mode = "fallback_static"
             return RetrievalResult(
                 evidence=list(_STATIC_CORPUS),
                 retrieval_method="fallback_static",
@@ -330,7 +375,7 @@ class KnowledgeRetriever:
                 notes=[f"DB unavailable: {exc}"],
             )
 
-    async def seed_and_backfill(self) -> None:
+    async def seed_and_backfill(self) -> dict[str, Any]:
         """Seed corpus if empty, and backfill NULL embeddings when possible.
 
         Handles three startup scenarios:
@@ -338,7 +383,20 @@ class KnowledgeRetriever:
           2. Docs exist but some have NULL embeddings and embedding generation
              is now available → backfill those embeddings.
           3. All docs already have embeddings → skip (no-op).
+
+        Returns a status dict for startup logging.
         """
+        global _last_seed_status
+        status: dict[str, Any] = {
+            "action": "none",
+            "total_docs": 0,
+            "embedded_docs": 0,
+            "seeded": 0,
+            "backfilled": 0,
+            "embedding_available": self._embedding_available,
+            "error": None,
+        }
+
         try:
             from app.services.db import get_pool
 
@@ -346,81 +404,166 @@ class KnowledgeRetriever:
 
             # --- Step 1: Seed if table is empty ---
             count = await pool.fetchval("SELECT COUNT(*) FROM knowledge_documents")
+            status["total_docs"] = count
+
             if count == 0:
                 logger.info(
                     "Seeding knowledge_documents with %d initial documents",
                     len(_SEED_DOCUMENTS),
                 )
+                seeded = 0
+                seeded_with_embedding = 0
                 for doc in _SEED_DOCUMENTS:
                     embedding = await self.embed_text(doc["content"])
-                    await pool.execute(
-                        """
-                        INSERT INTO knowledge_documents (source, title, content, metadata, embedding)
-                        VALUES ($1, $2, $3, $4::jsonb, $5::vector)
-                        """,
-                        doc["source"],
-                        doc["title"],
-                        doc["content"],
-                        json.dumps(doc["metadata"]),
-                        str(embedding) if embedding else None,
-                    )
-                logger.info("Seed corpus inserted successfully")
-                return  # backfill not needed — we just seeded with best-effort embeddings
+                    try:
+                        # Try with embedding column first (pgvector available)
+                        await pool.execute(
+                            """
+                            INSERT INTO knowledge_documents (source, title, content, metadata, embedding)
+                            VALUES ($1, $2, $3, $4::jsonb, $5::vector)
+                            """,
+                            doc["source"],
+                            doc["title"],
+                            doc["content"],
+                            json.dumps(doc["metadata"]),
+                            str(embedding) if embedding else None,
+                        )
+                        seeded += 1
+                        if embedding:
+                            seeded_with_embedding += 1
+                    except Exception as ins_exc:
+                        # Vector column might not exist — try without it
+                        try:
+                            await pool.execute(
+                                """
+                                INSERT INTO knowledge_documents (source, title, content, metadata)
+                                VALUES ($1, $2, $3, $4::jsonb)
+                                """,
+                                doc["source"],
+                                doc["title"],
+                                doc["content"],
+                                json.dumps(doc["metadata"]),
+                            )
+                            seeded += 1
+                        except Exception as ins2_exc:
+                            logger.warning("Failed to seed doc '%s': %s", doc["source"], ins2_exc)
 
-            # --- Step 2: Backfill NULL embeddings if generation is now available ---
-            null_count = await pool.fetchval(
-                "SELECT COUNT(*) FROM knowledge_documents WHERE embedding IS NULL"
-            )
-            if null_count == 0:
+                status["action"] = "seeded"
+                status["seeded"] = seeded
+                status["total_docs"] = seeded
+                status["embedded_docs"] = seeded_with_embedding
                 logger.info(
-                    "knowledge_documents has %d docs, all with embeddings — nothing to do",
+                    "Seed complete: %d docs inserted (%d with embeddings, %d without)",
+                    seeded, seeded_with_embedding, seeded - seeded_with_embedding,
+                )
+                _last_seed_status = status
+                return status
+
+            # --- Step 2: Count embedded docs ---
+            try:
+                embedded_count = await pool.fetchval(
+                    "SELECT COUNT(*) FROM knowledge_documents WHERE embedding IS NOT NULL"
+                )
+            except Exception:
+                # embedding column might not exist
+                embedded_count = 0
+            status["embedded_docs"] = embedded_count
+            null_count = count - embedded_count
+
+            if null_count == 0:
+                status["action"] = "nothing_to_do"
+                logger.info(
+                    "knowledge_documents: %d docs, all with embeddings — fully operational",
                     count,
                 )
-                return
+                _last_seed_status = status
+                return status
 
-            if self._openai_client is None:
+            if not self._embedding_available:
+                status["action"] = "backfill_deferred"
                 logger.info(
-                    "knowledge_documents has %d docs, %d without embeddings "
-                    "(embedding generation unavailable — will retry on next boot)",
+                    "knowledge_documents: %d docs, %d without embeddings "
+                    "(OPENAI_API_KEY not set — embeddings unavailable, will retry on next boot)",
                     count, null_count,
                 )
-                return
+                _last_seed_status = status
+                return status
 
             # Embedding client is available — backfill missing embeddings
             logger.info(
                 "Backfilling embeddings for %d/%d documents", null_count, count,
             )
-            rows = await pool.fetch(
-                "SELECT id, content FROM knowledge_documents WHERE embedding IS NULL"
-            )
+            try:
+                rows = await pool.fetch(
+                    "SELECT id, content FROM knowledge_documents WHERE embedding IS NULL"
+                )
+            except Exception:
+                # embedding column might not exist — nothing to backfill
+                status["action"] = "backfill_skipped"
+                status["error"] = "embedding column not available"
+                _last_seed_status = status
+                return status
+
             backfilled = 0
+            failed = 0
             for row in rows:
                 embedding = await self.embed_text(row["content"])
                 if embedding is not None:
-                    await pool.execute(
-                        """
-                        UPDATE knowledge_documents
-                        SET embedding = $1::vector, updated_at = NOW()
-                        WHERE id = $2
-                        """,
-                        str(embedding),
-                        row["id"],
-                    )
-                    backfilled += 1
+                    try:
+                        await pool.execute(
+                            """
+                            UPDATE knowledge_documents
+                            SET embedding = $1::vector, updated_at = NOW()
+                            WHERE id = $2
+                            """,
+                            str(embedding),
+                            row["id"],
+                        )
+                        backfilled += 1
+                    except Exception as upd_exc:
+                        failed += 1
+                        logger.warning("Embedding update failed for doc %d: %s", row["id"], upd_exc)
+                else:
+                    failed += 1
+
+            status["action"] = "backfilled"
+            status["backfilled"] = backfilled
+            status["embedded_docs"] = embedded_count + backfilled
             logger.info(
-                "Embedding backfill complete: %d/%d documents updated",
-                backfilled, null_count,
+                "Embedding backfill complete: %d/%d updated, %d failed",
+                backfilled, null_count, failed,
             )
+            if failed > 0:
+                status["backfill_failures"] = failed
 
         except Exception as exc:
+            status["action"] = "error"
+            status["error"] = str(exc)
             logger.warning(
                 "Corpus seed/backfill failed: %s (static fallback remains available)",
                 exc,
             )
 
-    async def get_status(self) -> dict:
-        """Return retrieval subsystem status (no secrets)."""
-        status = {
+        _last_seed_status = status
+        return status
+
+    async def get_status(self) -> dict[str, Any]:
+        """Return retrieval subsystem status (no secrets).
+
+        Reports:
+          - embedding_model: configured model name
+          - embedding_client_available: whether OpenAI client initialized
+          - vector_dim: expected vector dimensions
+          - static_corpus_size: fallback corpus doc count
+          - db_available: whether DB is reachable
+          - db_corpus_count: total docs in DB
+          - db_embedded_count: docs with embeddings
+          - pgvector_available: whether pgvector extension is active
+          - corpus_status: fully_embedded | partially_embedded | seeded_no_embeddings | empty | unavailable
+          - active_retrieval_mode: pgvector | fallback_db_no_embedding | fallback_static | not_yet_used
+          - last_seed_action: what seed_and_backfill did last time
+        """
+        status: dict[str, Any] = {
             "embedding_model": self._embedding_model,
             "embedding_client_available": self._embedding_available,
             "vector_dim": self._vector_dim,
@@ -428,17 +571,47 @@ class KnowledgeRetriever:
             "db_corpus_count": 0,
             "db_embedded_count": 0,
             "db_available": False,
+            "pgvector_available": False,
+            "corpus_status": "unavailable",
+            "active_retrieval_mode": _last_retrieval_mode,
+            "forced_static": os.getenv("RETRIEVAL_FALLBACK_ONLY", "").strip().lower() in ("true", "1", "yes"),
         }
+
+        if _last_seed_status:
+            status["last_seed_action"] = _last_seed_status.get("action", "unknown")
+
         try:
-            from app.services.db import get_pool
+            from app.services.db import get_pool, check_pgvector_available
             pool = await get_pool()
             status["db_available"] = True
-            total = await pool.fetchval("SELECT COUNT(*) FROM knowledge_documents")
-            embedded = await pool.fetchval(
-                "SELECT COUNT(*) FROM knowledge_documents WHERE embedding IS NOT NULL"
-            )
-            status["db_corpus_count"] = total
-            status["db_embedded_count"] = embedded
-        except Exception:
-            pass
+            status["pgvector_available"] = await check_pgvector_available()
+
+            try:
+                total = await pool.fetchval("SELECT COUNT(*) FROM knowledge_documents")
+                status["db_corpus_count"] = total
+            except Exception:
+                total = 0
+
+            try:
+                embedded = await pool.fetchval(
+                    "SELECT COUNT(*) FROM knowledge_documents WHERE embedding IS NOT NULL"
+                )
+                status["db_embedded_count"] = embedded
+            except Exception:
+                embedded = 0
+
+            # Compute corpus_status
+            if total == 0:
+                status["corpus_status"] = "empty"
+            elif embedded == 0:
+                status["corpus_status"] = "seeded_no_embeddings"
+            elif embedded < total:
+                status["corpus_status"] = "partially_embedded"
+            else:
+                status["corpus_status"] = "fully_embedded"
+
+        except Exception as exc:
+            status["corpus_status"] = "unavailable"
+            status["db_error"] = str(exc)
+
         return status

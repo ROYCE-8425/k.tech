@@ -9,7 +9,7 @@
         <div class="space-y-6">
             <!-- Basic Info Card -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-indigo-500/5 border border-white/20 overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600" style="background: linear-gradient(to right, #6366f1, #9333ea);">
                     <h2 class="text-xl font-bold text-white flex items-center">
                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="pt-4">
-                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all">
+                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                                 Lưu thay đổi
                             </button>
                         </div>
@@ -75,7 +75,7 @@
 
             <!-- Change Password Card -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-indigo-500/5 border border-white/20 overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600" style="background: linear-gradient(to right, #f97316, #dc2626);">
                     <h2 class="text-xl font-bold text-white flex items-center">
                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
@@ -129,7 +129,7 @@
                         </div>
 
                         <div class="pt-4">
-                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-orange-500/30 transition-all">
+                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-orange-500/30 transition-all" style="background: linear-gradient(to right, #f97316, #dc2626);">
                                 Đổi mật khẩu
                             </button>
                         </div>
@@ -139,7 +139,7 @@
 
             <!-- 2FA Card -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-indigo-500/5 border border-white/20 overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600" style="background: linear-gradient(to right, #10b981, #0d9488);">
                     <h2 class="text-xl font-bold text-white flex items-center">
                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -279,7 +279,7 @@
 
             <!-- Danger Zone -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-indigo-500/5 border border-red-200 overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-red-600 to-pink-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-red-600 to-pink-600" style="background: linear-gradient(to right, #dc2626, #db2777);">
                     <h2 class="text-xl font-bold text-white flex items-center">
                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>

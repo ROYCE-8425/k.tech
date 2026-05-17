@@ -10,7 +10,7 @@
         </a>
 
         <div class="text-center">
-            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white mx-auto mb-4 shadow-xl">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white mx-auto mb-4 shadow-xl" style="background: linear-gradient(to bottom right, #8b5cf6, #9333ea);">
                 <span class="text-3xl">🤖</span>
             </div>
             <h1 class="text-3xl font-bold text-gray-900">Đăng việc làm mới</h1>
@@ -30,7 +30,7 @@
         @endif
 
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-5">
+            <div class="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-5" style="background: linear-gradient(to right, #7c3aed, #9333ea);">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
                     🤖 Tạo Job Description cho AI Matching
                 </h2>
@@ -95,7 +95,7 @@
                     @else
                         <div class="p-6 rounded-2xl bg-yellow-50 border border-yellow-200">
                             <p class="text-yellow-800 font-medium mb-3">⚠️ Chưa có công ty nào.</p>
-                            <a href="{{ route('admin.companies.create') }}" class="inline-flex items-center px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all">+ Tạo công ty</a>
+                            <a href="{{ route('admin.companies.create') }}" class="inline-flex items-center px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all" style="background: linear-gradient(to right, #7c3aed, #9333ea);">+ Tạo công ty</a>
                         </div>
                     @endif
                     @error('company_id')
@@ -251,14 +251,14 @@
                             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 🔍 Kiểm tra chất lượng JD
                             </h3>
-                            <p class="text-sm text-gray-500 mt-1">Hệ thống sẽ phân tích và gợi ý cải thiện trước khi đăng.</p>
+                            <p class="text-sm text-gray-500 mt-1">AI sẽ phân tích mức độ đầy đủ của JD trước khi đăng — giúp tối ưu chất lượng so khớp CV.</p>
                         </div>
                         <button type="button" id="btnCheckQuality"
-                            class="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg">
+                            class="inline-flex items-center px-5 py-2.5 rounded-xl text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg hover:scale-105" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                             </svg>
-                            Kiểm tra ngay
+                            🤖 Phân tích AI
                         </button>
                     </div>
 
@@ -266,38 +266,23 @@
                     <div id="jdQualityError" class="hidden p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"></div>
 
                     {{-- Results container (hidden initially) --}}
-                    <div id="jdQualityResult" class="hidden space-y-4">
-                        {{-- Score badge --}}
-                        <div class="flex items-center gap-4">
-                            <div id="qualityScoreBadge" class="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg"></div>
-                            <div>
-                                <p id="qualityLabel" class="font-bold text-lg"></p>
-                                <p id="qualitySummary" class="text-sm text-gray-500"></p>
-                            </div>
-                        </div>
-
-                        {{-- Issues list --}}
-                        <div id="qualityIssues" class="space-y-2"></div>
-
-                        {{-- Suggestions --}}
-                        <div id="qualitySuggestions" class="space-y-2"></div>
-
-                        {{-- Suggested skills --}}
-                        <div id="qualitySuggestedSkills" class="hidden">
-                            <p class="text-sm font-semibold text-gray-700 mb-2">💡 Kỹ năng gợi ý thêm:</p>
-                            <div id="suggestedSkillsContent" class="flex flex-wrap gap-2"></div>
-                        </div>
-
-                        {{-- Suggested seniority / experience --}}
-                        <div id="qualityInferred" class="hidden">
-                            <p id="inferredContent" class="text-sm text-indigo-700 bg-indigo-50 rounded-xl px-4 py-2"></p>
-                        </div>
-                    </div>
+                    <div id="jdQualityResult" class="hidden"></div>
 
                     {{-- Loading state --}}
-                    <div id="jdQualityLoading" class="hidden flex items-center gap-3 py-4">
-                        <div class="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <span class="text-sm text-gray-500">Đang phân tích chất lượng JD...</span>
+                    <div id="jdQualityLoading" class="hidden py-8">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="relative w-16 h-16">
+                                <div class="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
+                                <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+                                <div class="absolute inset-2 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #eef2ff, #e0e7ff);">
+                                    <span class="text-lg">🤖</span>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm font-semibold text-indigo-700">Đang phân tích chất lượng JD...</p>
+                                <p class="text-xs text-gray-400 mt-1">Kiểm tra cấu trúc, kỹ năng, và mức độ đầy đủ</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -336,7 +321,7 @@
                     <p class="text-gray-400 text-sm hidden sm:block">
                         Tin tuyển dụng sẽ hiển thị ngay sau khi đăng.
                     </p>
-                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-violet-500/30 hover:scale-[1.02] transition-all duration-300">
+                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-violet-500/30 hover:scale-[1.02] transition-all duration-300" style="background: linear-gradient(to right, #7c3aed, #9333ea);">
                         🤖 Đăng tuyển ngay
                     </button>
                 </div>
@@ -412,80 +397,250 @@
             });
 
             function renderQualityResult(data) {
-                // Score badge
-                const badge = document.getElementById('qualityScoreBadge');
-                badge.textContent = data.quality_score;
-                const colors = {
-                    excellent: 'bg-emerald-500', good: 'bg-blue-500',
-                    needs_improvement: 'bg-amber-500', poor: 'bg-red-500'
+                const resultEl = document.getElementById('jdQualityResult');
+                const score = data.quality_score;
+                const label = data.quality_label;
+
+                // Color schemes
+                const colorMap = {
+                    excellent: { bg: '#10b981', light: '#d1fae5', text: '#065f46', grad: 'linear-gradient(135deg, #10b981, #059669)' },
+                    good:      { bg: '#3b82f6', light: '#dbeafe', text: '#1e40af', grad: 'linear-gradient(135deg, #3b82f6, #2563eb)' },
+                    needs_improvement: { bg: '#f59e0b', light: '#fef3c7', text: '#92400e', grad: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+                    poor:      { bg: '#ef4444', light: '#fee2e2', text: '#991b1b', grad: 'linear-gradient(135deg, #ef4444, #dc2626)' },
                 };
-                badge.className = 'w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg ' + (colors[data.quality_label] || 'bg-gray-500');
+                const c = colorMap[label] || colorMap.good;
+                const labelText = { excellent: 'Tuyệt vời', good: 'Tốt', needs_improvement: 'Cần cải thiện', poor: 'Chưa đủ' };
+                const labelEmoji = { excellent: '🏆', good: '👍', needs_improvement: '⚠️', poor: '❌' };
 
-                // Label
-                const labels = {
-                    excellent: '✅ Tuyệt vời', good: '👍 Tốt',
-                    needs_improvement: '⚠️ Cần cải thiện', poor: '❌ Chưa đủ thông tin'
-                };
-                document.getElementById('qualityLabel').textContent = labels[data.quality_label] || data.quality_label;
-                document.getElementById('qualitySummary').textContent = data.quality_score + '/100 điểm chất lượng JD';
+                // SVG circular gauge params
+                const radius = 54, circumference = 2 * Math.PI * radius;
+                const offset = circumference - (score / 100) * circumference;
 
-                // Issues
-                const issuesEl = document.getElementById('qualityIssues');
-                issuesEl.innerHTML = '';
-                (data.issues || []).forEach(issue => {
-                    const colors = { error: 'bg-red-50 border-red-200 text-red-800', warning: 'bg-amber-50 border-amber-200 text-amber-800', info: 'bg-blue-50 border-blue-200 text-blue-700' };
-                    const icons = { error: '❌', warning: '⚠️', info: 'ℹ️' };
-                    const div = document.createElement('div');
-                    div.className = 'p-3 rounded-xl border text-sm ' + (colors[issue.severity] || colors.info);
-                    div.innerHTML = '<span class="mr-1">' + (icons[issue.severity] || 'ℹ️') + '</span> ' + issue.message;
-                    issuesEl.appendChild(div);
-                });
+                // Count issues by severity
+                const issues = data.issues || [];
+                const errorCount = issues.filter(i => i.severity === 'error').length;
+                const warnCount = issues.filter(i => i.severity === 'warning').length;
+                const infoCount = issues.filter(i => i.severity === 'info').length;
 
-                // Suggestions
-                const sugEl = document.getElementById('qualitySuggestions');
-                sugEl.innerHTML = '';
-                (data.suggestions || []).forEach(sug => {
-                    const div = document.createElement('div');
-                    div.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm';
-                    div.innerHTML = '💡 ' + sug;
-                    sugEl.appendChild(div);
-                });
+                // AI weight analysis — compute field completeness
+                const reqSkillsCount = document.querySelectorAll('input[name="required_skills[]"]:checked').length;
+                const prefSkillsCount = document.querySelectorAll('input[name="preferred_skills[]"]:checked').length;
+                const hasSeniority = !!document.querySelector('select[name="seniority"]')?.value;
+                const hasExperience = !!document.querySelector('select[name="min_experience_years"]')?.value;
+                const descLen = (document.querySelector('textarea[name="description"]')?.value || '').length;
 
-                // Suggested skills
-                const sugSkillsEl = document.getElementById('qualitySuggestedSkills');
-                const sugSkillsContent = document.getElementById('suggestedSkillsContent');
-                if (data.suggested_skills && (data.suggested_skills.required?.length || data.suggested_skills.preferred?.length)) {
-                    sugSkillsEl.classList.remove('hidden');
-                    sugSkillsContent.innerHTML = '';
-                    (data.suggested_skills.required || []).forEach(s => {
-                        sugSkillsContent.innerHTML += '<span class="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-semibold">' + s + ' (bắt buộc)</span>';
-                    });
-                    (data.suggested_skills.preferred || []).forEach(s => {
-                        sugSkillsContent.innerHTML += '<span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">' + s + ' (ưu tiên)</span>';
-                    });
-                } else {
-                    sugSkillsEl.classList.add('hidden');
+                const weights = [
+                    { label: 'Kỹ năng bắt buộc', weight: '40%', pct: Math.min(100, reqSkillsCount >= 3 ? 100 : (reqSkillsCount / 3 * 100)), color: '#8b5cf6', icon: '⚙️' },
+                    { label: 'Mô tả công việc', weight: '20%', pct: Math.min(100, descLen >= 50 ? 100 : (descLen / 50 * 100)), color: '#6366f1', icon: '📝' },
+                    { label: 'Kỹ năng ưu tiên', weight: '15%', pct: prefSkillsCount > 0 ? 100 : 0, color: '#f59e0b', icon: '⭐' },
+                    { label: 'Kinh nghiệm', weight: '15%', pct: hasExperience ? 100 : 0, color: '#14b8a6', icon: '📊' },
+                    { label: 'Cấp bậc', weight: '10%', pct: hasSeniority ? 100 : 0, color: '#ec4899', icon: '🎯' },
+                ];
+
+                let html = `
+                <div style="animation: fadeIn 0.5s ease-out;">
+                <style>
+                    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    @keyframes drawCircle { from { stroke-dashoffset: ${circumference}; } to { stroke-dashoffset: ${offset}; } }
+                    @keyframes growBar { from { width: 0; } }
+                    .quality-bar { animation: growBar 0.8s ease-out forwards; }
+                </style>
+
+                <!-- ═══ TOP: Score Gauge + Summary ═══ -->
+                <div class="flex flex-col md:flex-row items-center gap-6 p-6 rounded-2xl border" style="background: ${c.light}; border-color: ${c.bg}30;">
+                    <!-- Circular Gauge -->
+                    <div class="relative flex-shrink-0" style="width: 140px; height: 140px;">
+                        <svg viewBox="0 0 120 120" class="w-full h-full" style="transform: rotate(-90deg);">
+                            <circle cx="60" cy="60" r="${radius}" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                            <circle cx="60" cy="60" r="${radius}" fill="none" stroke="${c.bg}" stroke-width="8"
+                                stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+                                style="animation: drawCircle 1.2s ease-out forwards; filter: drop-shadow(0 2px 4px ${c.bg}40);"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-3xl font-black" style="color: ${c.bg};">${score}</span>
+                            <span class="text-xs font-semibold text-gray-500">/100</span>
+                        </div>
+                    </div>
+                    <!-- Summary -->
+                    <div class="flex-1 text-center md:text-left">
+                        <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
+                            <span class="text-2xl">${labelEmoji[label] || '📋'}</span>
+                            <h4 class="text-xl font-bold" style="color: ${c.text};">${labelText[label] || label}</h4>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">Điểm chất lượng JD: <strong>${score}/100</strong>. AI sẽ sử dụng thông tin này để so khớp CV ứng viên.</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${errorCount > 0 ? `<span class="px-3 py-1 rounded-full text-xs font-bold" style="background: #fee2e2; color: #991b1b;">❌ ${errorCount} lỗi</span>` : ''}
+                            ${warnCount > 0 ? `<span class="px-3 py-1 rounded-full text-xs font-bold" style="background: #fef3c7; color: #92400e;">⚠️ ${warnCount} cảnh báo</span>` : ''}
+                            ${infoCount > 0 ? `<span class="px-3 py-1 rounded-full text-xs font-bold" style="background: #dbeafe; color: #1e40af;">ℹ️ ${infoCount} gợi ý</span>` : ''}
+                            ${issues.length === 0 ? `<span class="px-3 py-1 rounded-full text-xs font-bold" style="background: #d1fae5; color: #065f46;">✅ Không có vấn đề</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ AI WEIGHT BREAKDOWN ═══ -->
+                <div class="mt-6 p-5 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                    <h4 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        🤖 Mức độ đầy đủ theo trọng số AI Matching
+                    </h4>
+                    <div class="space-y-3">
+                        ${weights.map((w, i) => `
+                        <div class="flex items-center gap-3" style="animation: fadeIn ${0.3 + i * 0.1}s ease-out;">
+                            <span class="text-base flex-shrink-0 w-6">${w.icon}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-semibold text-gray-700">${w.label}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold" style="color: ${w.color};">${Math.round(w.pct)}%</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold" style="background: ${w.color}15; color: ${w.color};">×${w.weight}</span>
+                                    </div>
+                                </div>
+                                <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                                    <div class="quality-bar h-full rounded-full" style="width: ${w.pct}%; background: ${w.color}; animation-delay: ${i * 0.1}s;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+
+                // ═══ ISSUES ═══
+                if (issues.length > 0) {
+                    const severityOrder = { error: 1, warning: 2, info: 3 };
+                    const sorted = [...issues].sort((a, b) => (severityOrder[a.severity] || 9) - (severityOrder[b.severity] || 9));
+                    const fieldLabels = {
+                        title: '📌 Tiêu đề', required_skills: '⚙️ Kỹ năng bắt buộc', preferred_skills: '⭐ Kỹ năng ưu tiên',
+                        seniority: '🎯 Cấp bậc', experience: '📊 Kinh nghiệm', description: '📝 Mô tả',
+                    };
+                    const severityStyles = {
+                        error:   { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', icon: '❌', label: 'Lỗi' },
+                        warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', icon: '⚠️', label: 'Cảnh báo' },
+                        info:    { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', icon: 'ℹ️', label: 'Gợi ý' },
+                    };
+
+                    html += `
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">📋 Chi tiết phân tích</h4>
+                        <div class="space-y-2">
+                            ${sorted.map((issue, i) => {
+                                const s = severityStyles[issue.severity] || severityStyles.info;
+                                const fieldTag = fieldLabels[issue.field] || '';
+                                return `
+                                <div class="p-3 rounded-xl border flex items-start gap-3" style="background: ${s.bg}; border-color: ${s.border}; animation: fadeIn ${0.2 + i * 0.08}s ease-out;">
+                                    <span class="text-base mt-0.5 flex-shrink-0">${s.icon}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-0.5">
+                                            ${fieldTag ? `<span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold" style="background: ${s.border}80; color: ${s.text};">${fieldTag}</span>` : ''}
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold" style="background: ${s.border}60; color: ${s.text};">${s.label}</span>
+                                        </div>
+                                        <p class="text-sm" style="color: ${s.text};">${issue.message}</p>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
                 }
 
-                // Inferred seniority / experience
-                const inferEl = document.getElementById('qualityInferred');
-                const inferContent = document.getElementById('inferredContent');
+                // ═══ SUGGESTIONS ═══
+                const suggestions = data.suggestions || [];
+                if (suggestions.length > 0) {
+                    html += `
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">💡 Gợi ý cải thiện</h4>
+                        <div class="space-y-2">
+                            ${suggestions.map(sug => `
+                            <div class="p-3 rounded-xl border flex items-start gap-3" style="background: #f0fdf4; border-color: #bbf7d0;">
+                                <span class="text-base mt-0.5 flex-shrink-0">💡</span>
+                                <p class="text-sm" style="color: #166534;">${sug}</p>
+                            </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                // ═══ SUGGESTED SKILLS ═══
+                const sugSkills = data.suggested_skills;
+                if (sugSkills && (sugSkills.required?.length || sugSkills.preferred?.length)) {
+                    html += `
+                    <div class="mt-6 p-5 rounded-2xl border border-violet-100" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe);">
+                        <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">🧩 Phân tích kỹ năng — Gợi ý từ AI</h4>
+                        <p class="text-xs text-gray-500 mb-3">Dựa trên tiêu đề JD, AI gợi ý thêm các kỹ năng phổ biến cho vị trí này. Click để thêm vào form.</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${(sugSkills.required || []).map(s => `
+                                <button type="button" onclick="addSkillFromSuggestion(this, '${s}', 'required')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border-2 border-violet-300 hover:border-violet-500 transition-all cursor-pointer hover:scale-105"
+                                    style="background: white; color: #6d28d9;">
+                                    <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px]" style="background: #8b5cf6; color: white;">+</span>
+                                    ${s}
+                                    <span class="text-[10px] px-1 py-0.5 rounded" style="background: #ede9fe;">bắt buộc</span>
+                                </button>`).join('')}
+                            ${(sugSkills.preferred || []).map(s => `
+                                <button type="button" onclick="addSkillFromSuggestion(this, '${s}', 'preferred')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border-2 border-amber-200 hover:border-amber-400 transition-all cursor-pointer hover:scale-105"
+                                    style="background: white; color: #92400e;">
+                                    <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px]" style="background: #f59e0b; color: white;">+</span>
+                                    ${s}
+                                    <span class="text-[10px] px-1 py-0.5 rounded" style="background: #fef3c7;">ưu tiên</span>
+                                </button>`).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                // ═══ INFERRED SENIORITY / EXPERIENCE ═══
                 let inferParts = [];
                 if (data.suggested_seniority) {
-                    inferParts.push('Cấp bậc gợi ý: <strong>' + data.suggested_seniority + '</strong>');
+                    const seniorityLabels = { intern: 'Thực tập', fresher: 'Fresher', junior: 'Junior', mid: 'Mid-level', senior: 'Senior', lead: 'Tech Lead', principal: 'Principal' };
+                    inferParts.push(`<div class="flex items-center gap-3 p-3 rounded-xl" style="background: white; border: 1px solid #c7d2fe;">
+                        <span class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">🎯</span>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500">Cấp bậc gợi ý</p>
+                            <p class="text-sm font-bold" style="color: #4338ca;">${seniorityLabels[data.suggested_seniority] || data.suggested_seniority}</p>
+                        </div>
+                    </div>`);
                 }
                 if (data.suggested_experience) {
-                    inferParts.push('Kinh nghiệm gợi ý: <strong>' + data.suggested_experience.min + '-' + data.suggested_experience.max + ' năm</strong>');
+                    inferParts.push(`<div class="flex items-center gap-3 p-3 rounded-xl" style="background: white; border: 1px solid #99f6e4;">
+                        <span class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, #14b8a6, #0d9488); color: white;">📊</span>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500">Kinh nghiệm gợi ý</p>
+                            <p class="text-sm font-bold" style="color: #0f766e;">${data.suggested_experience.min}–${data.suggested_experience.max} năm</p>
+                        </div>
+                    </div>`);
                 }
                 if (inferParts.length) {
-                    inferEl.classList.remove('hidden');
-                    inferContent.innerHTML = '🎯 ' + inferParts.join(' · ');
-                } else {
-                    inferEl.classList.add('hidden');
+                    html += `
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">🎯 AI tự suy luận từ tiêu đề</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${inferParts.join('')}</div>
+                    </div>`;
                 }
 
+                html += `</div>`; // close fadeIn wrapper
+                resultEl.innerHTML = html;
                 resultEl.classList.remove('hidden');
             }
+
+            // Click-to-add skill from suggestion
+            window.addSkillFromSuggestion = function(btn, skill, type) {
+                const inputName = type === 'required' ? 'required_skills[]' : 'preferred_skills[]';
+                const checkbox = document.querySelector('input[name="' + inputName + '"][value="' + skill + '"]');
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                    // Flash the label
+                    const label = checkbox.closest('label');
+                    if (label) {
+                        label.style.transition = 'all 0.3s';
+                        label.style.boxShadow = '0 0 0 3px ' + (type === 'required' ? '#8b5cf680' : '#f59e0b80');
+                        setTimeout(() => { label.style.boxShadow = ''; }, 1500);
+                        label.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                // Remove the button
+                btn.style.transition = 'all 0.3s';
+                btn.style.opacity = '0';
+                btn.style.transform = 'scale(0.8)';
+                setTimeout(() => btn.remove(), 300);
+            };
         });
     </script>
 </x-layouts.app>

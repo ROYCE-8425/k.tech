@@ -1,0 +1,17 @@
+{
+  "domain": "Data Roles",
+  "current_trends": [
+    "Sự hội tụ giữa Data Engineering và Software Engineering (DataOps)",
+    "Modern Data Stack: dbt, Snowflake/BigQuery, Fivetran/Airbyte",
+    "Stream processing (Kafka, Flink) đang dần phổ biến hơn batch processing",
+    "Data quality và Data observability (Monte Carlo, Great Expectations) là xu hướng mới"
+  ],
+  "risk_patterns": [
+    "Chỉ biết viết SQL queries, thiếu kỹ năng lập trình (Python/Scala)",
+    "Không hiểu về kiến trúc distributed systems"
+  ],
+  "seniority_expectations": {
+    "mid": "Thành thạo ETL/ELT pipelines, tối ưu SQL queries, hiểu data modeling.",
+    "senior": "Thiết kế Data Lake/Data Warehouse architecture, data governance, mentoring."
+  }
+}

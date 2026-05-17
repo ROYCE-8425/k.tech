@@ -697,43 +697,22 @@ class CandidateJobController extends Controller
             return redirect()->route('login')
                 ->with('error', 'Vui lòng đăng nhập bằng tài khoản Ứng tuyển để nộp đơn.');
         }
-
-        if ($this->candidateNeedsOnboarding($user->email)) {
-            return redirect()->route('candidate.profile')
-                ->with('error', 'Vui lòng hoàn thiện hồ sơ trước khi ứng tuyển.');
-        }
-
-        $cvMode = $request->input('cv_mode', 'upload');
+// CV mode removed - upload only
 
         // Validate input
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'cv_mode' => ['nullable', Rule::in(['upload', 'form'])],
-            'cv_file' => ['required_if:cv_mode,upload', 'nullable', 'file', 'mimes:docx,doc,pdf', 'max:5120'],
-            'cover_letter' => ['nullable', 'string', 'max:5000'],
-
-            // Form CV mode
-            'self_description' => ['required_if:cv_mode,form', 'nullable', 'string', 'max:5000'],
-            'education_json' => ['nullable', 'string', 'max:20000'],
-            'work_experiences_json' => ['nullable', 'string', 'max:60000'],
-            'skills_json' => ['nullable', 'string', 'max:20000'],
-            'certifications_json' => ['nullable', 'string', 'max:5000'],
-            'education_proofs' => ['nullable', 'array', 'max:10'],
-            'education_proofs.*' => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+                        'cv_file' => ['required', 'file', 'mimes:docx,doc,pdf', 'max:5120'],
         ], [
             'full_name.required' => 'Vui lòng nhập họ tên.',
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không hợp lệ.',
-            'cv_file.required_if' => 'Vui lòng upload file CV.',
+            'cv_file.required' => 'Vui lòng upload file CV.',
             'cv_file.mimes' => 'Chỉ chấp nhận file .docx, .doc hoặc .pdf.',
             'cv_file.max' => 'File CV không được vượt quá 5MB.',
-            'self_description.required_if' => 'Vui lòng nhập mô tả bản thân.',
-            'education_proofs.array' => 'Dữ liệu minh chứng không hợp lệ.',
-        ]);
-
-        // User is guaranteed to be candidate at this point
+        ]);        // User is guaranteed to be candidate at this point
         $validated['email'] = $user->email;
         $validated['full_name'] = $user->name;
 
@@ -744,7 +723,7 @@ class CandidateJobController extends Controller
         $cvData = null;
         $cvProofFiles = null;
 
-        if ($cvMode === 'upload') {
+        // File upload processing (always)
             // Lưu file CV vào storage
             $file = $request->file('cv_file');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -757,308 +736,10 @@ class CandidateJobController extends Controller
                 $cvContent = $this->extractTextFromDocx(Storage::path($filePath));
             } elseif ($extension === 'pdf') {
                 // TODO: Xử lý PDF sau (có thể dùng smalot/pdfparser hoặc spatie/pdf-to-text)
-                $cvContent = '[PDF content - chưa hỗ trợ extract]';
-            }
-        }
-
-        if ($cvMode === 'form') {
-            $storedProofs = [];
-            $educationNormalized = [];
-
-            $educationJsonRaw = trim((string) ($validated['education_json'] ?? ''));
-            $education = [];
-            if ($educationJsonRaw !== '') {
-                $education = json_decode($educationJsonRaw, true);
-                if (!is_array($education)) {
-                    throw ValidationException::withMessages([
-                        'education_json' => 'Dữ liệu học vấn không hợp lệ.',
-                    ]);
-                }
-
-                $education = array_values(array_filter($education, static fn ($row) => is_array($row)));
-                // Education is optional, but if provided must have valid entries
-                if (count($education) > 10) {
-                    throw ValidationException::withMessages([
-                        'education_json' => 'Tối đa 10 học vấn.',
-                    ]);
-                }
+                $cvContent = $this->extractTextFromPdf(Storage::path($filePath));
             }
 
-            $proofUploads = (array) $request->file('education_proofs', []);
-            // Proofs are optional; if provided, allow any count (not strictly matching education rows)
-
-            $proofFolder = null;
-            if ($user && $user->id) {
-                $proofFolder = 'application_cv_proofs/u' . $user->id;
-            } else {
-                $proofFolder = 'application_cv_proofs/' . md5((string) ($validated['email'] ?? 'guest'));
-            }
-
-            foreach ($education as $index => $row) {
-                $school = trim((string) ($row['school'] ?? ''));
-                $degreeLevel = trim((string) ($row['degree_level'] ?? ''));
-                $major = trim((string) ($row['major'] ?? ''));
-                $graduationYear = (string) ($row['graduation_year'] ?? '');
-
-                if ($school === '' || $degreeLevel === '' || $graduationYear === '') {
-                    throw ValidationException::withMessages([
-                        'education_json' => 'Vui lòng nhập đầy đủ trường, bậc học và năm tốt nghiệp.',
-                    ]);
-                }
-
-                $graduationYearInt = (int) $graduationYear;
-                $currentYear = (int) date('Y');
-                if ($graduationYearInt < 1950 || $graduationYearInt > ($currentYear + 10)) {
-                    throw ValidationException::withMessages([
-                        'education_json' => 'Năm tốt nghiệp không hợp lệ.',
-                    ]);
-                }
-
-                $proofFile = $proofUploads[$index] ?? null;
-                if ($proofFile) {
-                    $proofName = time() . '_' . ($index + 1) . '_' . $proofFile->getClientOriginalName();
-                    $proofPath = $proofFile->storeAs($proofFolder, $proofName);
-                    $storedProofs[] = $proofPath;
-                }
-
-                $educationNormalized[] = [
-                    'school' => $school,
-                    'degree_level' => $degreeLevel,
-                    'major' => $major !== '' ? $major : null,
-                    'graduation_year' => $graduationYearInt,
-                ];
-            }
-
-            // Work experiences (optional)
-            $workExperiences = [];
-            if (!empty($validated['work_experiences_json'])) {
-                $workDecoded = json_decode((string) $validated['work_experiences_json'], true);
-                if (!is_array($workDecoded)) {
-                    throw ValidationException::withMessages([
-                        'work_experiences_json' => 'Dữ liệu kinh nghiệm làm việc không hợp lệ.',
-                    ]);
-                }
-
-                $workDecoded = array_values(array_filter($workDecoded, static fn ($row) => is_array($row)));
-                if (count($workDecoded) > 20) {
-                    throw ValidationException::withMessages([
-                        'work_experiences_json' => 'Tối đa 20 kinh nghiệm làm việc.',
-                    ]);
-                }
-
-                foreach ($workDecoded as $row) {
-                    $companyName = trim((string) ($row['company_name'] ?? ''));
-                    $positionTitle = trim((string) ($row['position_title'] ?? ''));
-                    $startDate = trim((string) ($row['start_date'] ?? ''));
-                    $endDate = trim((string) ($row['end_date'] ?? ''));
-                    $isCurrent = (bool) ($row['is_current'] ?? false);
-                    $description = trim((string) ($row['description'] ?? ''));
-
-                    if ($companyName === '' && $positionTitle === '' && $startDate === '' && $endDate === '' && $description === '') {
-                        continue;
-                    }
-
-                    if ($companyName === '' || $positionTitle === '' || $startDate === '') {
-                        throw ValidationException::withMessages([
-                            'work_experiences_json' => 'Vui lòng nhập Tên công ty, Vị trí và Ngày bắt đầu cho mỗi kinh nghiệm.',
-                        ]);
-                    }
-
-                    $start = \DateTime::createFromFormat('Y-m-d', $startDate);
-                    if (!$start || $start->format('Y-m-d') !== $startDate) {
-                        throw ValidationException::withMessages([
-                            'work_experiences_json' => 'Ngày bắt đầu không hợp lệ.',
-                        ]);
-                    }
-
-                    if ($isCurrent) {
-                        $endDate = null;
-                    } else {
-                        if ($endDate === '') {
-                            throw ValidationException::withMessages([
-                                'work_experiences_json' => 'Vui lòng nhập Ngày kết thúc hoặc chọn “Đang làm việc tại đây”.',
-                            ]);
-                        }
-                        $end = \DateTime::createFromFormat('Y-m-d', $endDate);
-                        if (!$end || $end->format('Y-m-d') !== $endDate) {
-                            throw ValidationException::withMessages([
-                                'work_experiences_json' => 'Ngày kết thúc không hợp lệ.',
-                            ]);
-                        }
-                        if ($end < $start) {
-                            throw ValidationException::withMessages([
-                                'work_experiences_json' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
-                            ]);
-                        }
-                    }
-
-                    $workExperiences[] = [
-                        'company_name' => $companyName,
-                        'position_title' => $positionTitle,
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'is_current' => $isCurrent,
-                        'description' => $description !== '' ? $description : null,
-                    ];
-                }
-            }
-
-            // Certifications (optional): english, toeic, ielts, years_experience, certifications
-            $certifications = [];
-            if (!empty($validated['certifications_json'])) {
-                $certsDecoded = json_decode((string) $validated['certifications_json'], true);
-                if (is_array($certsDecoded)) {
-                    $certifications = [
-                        'english_level' => !empty($certsDecoded['english_level']) ? trim($certsDecoded['english_level']) : null,
-                        'toeic_score' => isset($certsDecoded['toeic_score']) && is_numeric($certsDecoded['toeic_score']) ? (float) $certsDecoded['toeic_score'] : null,
-                        'ielts_score' => isset($certsDecoded['ielts_score']) && is_numeric($certsDecoded['ielts_score']) ? (float) $certsDecoded['ielts_score'] : null,
-                        'years_experience' => isset($certsDecoded['years_experience']) && is_numeric($certsDecoded['years_experience']) ? (float) $certsDecoded['years_experience'] : null,
-                        'certifications' => is_array($certsDecoded['certifications'] ?? null) ? $certsDecoded['certifications'] : [],
-                    ];
-                }
-            }
-
-            // Skills (optional): hard/soft with level 1-5
-            $skills = ['hard' => [], 'soft' => []];
-            if (!empty($validated['skills_json'])) {
-                $skillsDecoded = json_decode((string) $validated['skills_json'], true);
-                if (!is_array($skillsDecoded)) {
-                    throw ValidationException::withMessages([
-                        'skills_json' => 'Dữ liệu kỹ năng không hợp lệ.',
-                    ]);
-                }
-
-                foreach (['hard', 'soft'] as $kind) {
-                    $items = $skillsDecoded[$kind] ?? [];
-                    if (!is_array($items)) {
-                        $items = [];
-                    }
-                    if (count($items) > 30) {
-                        throw ValidationException::withMessages([
-                            'skills_json' => 'Tối đa 30 kỹ năng cho mỗi nhóm (Hard/Soft).',
-                        ]);
-                    }
-
-                    $seen = [];
-                    foreach ($items as $item) {
-                        if (!is_array($item)) {
-                            continue;
-                        }
-                        $name = trim((string) ($item['name'] ?? ''));
-                        $level = (int) ($item['level'] ?? 0);
-                        if ($name === '') {
-                            continue;
-                        }
-                        if (mb_strlen($name) > 60) {
-                            throw ValidationException::withMessages([
-                                'skills_json' => 'Tên kỹ năng quá dài (tối đa 60 ký tự).',
-                            ]);
-                        }
-                        if ($level < 1 || $level > 5) {
-                            throw ValidationException::withMessages([
-                                'skills_json' => 'Mức độ kỹ năng phải từ 1 đến 5.',
-                            ]);
-                        }
-                        $key = mb_strtolower($name);
-                        if (isset($seen[$key])) {
-                            continue;
-                        }
-                        $seen[$key] = true;
-                        $skills[$kind][] = [
-                            'name' => $name,
-                            'level' => $level,
-                        ];
-                    }
-                }
-            }
-
-            $cvData = [
-                'self_description' => $validated['self_description'] ?? null,
-                'education' => $educationNormalized,
-                'work_experiences' => $workExperiences,
-                'skills' => $skills,
-                'certifications' => $certifications,
-            ];
-            
-            // DEBUG: Log received cv_data structure
-            \Log::info('CV Form Submission Received', [
-                'candidate_email' => $validated['email'],
-                'cv_mode' => $cvMode,
-                'education_count' => count($educationNormalized),
-                'work_count' => count($workExperiences),
-                'hard_skills_count' => count($skills['hard'] ?? []),
-                'soft_skills_count' => count($skills['soft'] ?? []),
-                'has_self_description' => !empty($validated['self_description']),
-                'raw_education_json' => $validated['education_json'] ?? 'EMPTY',
-                'raw_work_json' => substr($validated['work_experiences_json'] ?? 'EMPTY', 0, 100),
-            ]);
-            
-            $cvProofFiles = $storedProofs;
-
-            $cvContentParts = [];
-            if (!empty($cvData['self_description'])) {
-                $cvContentParts[] = (string) $cvData['self_description'];
-            }
-            foreach ($educationNormalized as $row) {
-                $line = $row['school'] . ' - ' . $row['degree_level'];
-                if (!empty($row['major'])) {
-                    $line .= ' - ' . $row['major'];
-                }
-                $line .= ' - ' . $row['graduation_year'];
-                $cvContentParts[] = $line;
-            }
-
-            if (!empty($workExperiences)) {
-                foreach ($workExperiences as $row) {
-                    $line = ($row['company_name'] ?? '') . ' - ' . ($row['position_title'] ?? '') . ' - ' . ($row['start_date'] ?? '');
-                    if (!empty($row['is_current'])) {
-                        $line .= ' - hiện tại';
-                    } elseif (!empty($row['end_date'])) {
-                        $line .= ' - ' . $row['end_date'];
-                    }
-                    if (!empty($row['description'])) {
-                        $line .= "\n" . $row['description'];
-                    }
-                    $cvContentParts[] = $line;
-                }
-            }
-
-            $skillLines = [];
-            foreach (['hard' => 'Hard Skills', 'soft' => 'Soft Skills'] as $kind => $label) {
-                $items = $skills[$kind] ?? [];
-                if (!empty($items)) {
-                    $skillLines[] = $label . ': ' . implode(', ', array_map(static fn ($s) => ($s['name'] ?? '') . ' (' . ($s['level'] ?? '') . '/5)', $items));
-                }
-            }
-            if (!empty($skillLines)) {
-                $cvContentParts[] = implode("\n", $skillLines);
-            }
-            
-            // Add certifications info
-            if (!empty($certifications)) {
-                $certLines = [];
-                if (!empty($certifications['english_level'])) {
-                    $certLines[] = 'English Level: ' . $certifications['english_level'];
-                }
-                if (!empty($certifications['toeic_score'])) {
-                    $certLines[] = 'TOEIC: ' . $certifications['toeic_score'];
-                }
-                if (!empty($certifications['ielts_score'])) {
-                    $certLines[] = 'IELTS: ' . $certifications['ielts_score'];
-                }
-                if (!empty($certifications['years_experience'])) {
-                    $certLines[] = 'Years of Experience: ' . $certifications['years_experience'];
-                }
-                if (!empty($certifications['certifications'])) {
-                    $certLines[] = 'Certifications: ' . implode(', ', $certifications['certifications']);
-                }
-                if (!empty($certLines)) {
-                    $cvContentParts[] = implode("\n", $certLines);
-                }
-            }
-            
-            $cvContent = implode("\n", $cvContentParts);
-        }
+        
 
         // Tìm hoặc tạo Candidate
         $candidateUpdate = [
@@ -1084,53 +765,7 @@ class CandidateJobController extends Controller
         $candidate->refresh();
 
         // Nếu user là candidate và dùng CV nhanh: lưu lại vào hồ sơ để lần sau sửa/dùng lại
-        if ($user && $user->role === 'candidate' && $cvMode === 'form' && is_array($cvData)) {
-            // Check if we have meaningful data (not all empty arrays)
-            $hasEducation = !empty($cvData['education']);
-            $hasWork = !empty($cvData['work_experiences']);
-            $hasSkills = !empty($cvData['skills']['hard'] ?? []) || !empty($cvData['skills']['soft'] ?? []);
-            $hasCerts = !empty($cvData['certifications']['english_level']) 
-                     || !empty($cvData['certifications']['toeic_score'])
-                     || !empty($cvData['certifications']['ielts_score'])
-                     || !empty($cvData['certifications']['years_experience'])
-                     || !empty($cvData['certifications']['certifications']);
-            
-            $hasAnyData = $hasEducation || $hasWork || $hasSkills || $hasCerts;
-            
-            // ONLY update profile_data if we have actual data from form
-            // This prevents overwriting existing data with empty form submission
-            if ($hasAnyData) {
-                $profileData = is_array($candidate->profile_data) ? $candidate->profile_data : [];
-                
-                // Merge new cv_quick with existing profile_data
-                $newCvQuick = [
-                    'self_description' => $cvData['self_description'] ?? null,
-                    'education' => is_array($cvData['education'] ?? null) ? $cvData['education'] : [],
-                    'work_experiences' => is_array($cvData['work_experiences'] ?? null) ? $cvData['work_experiences'] : [],
-                    'skills' => is_array($cvData['skills'] ?? null) ? $cvData['skills'] : ['hard' => [], 'soft' => []],
-                    'certifications' => is_array($cvData['certifications'] ?? null) ? $cvData['certifications'] : [],
-                ];
-                
-                $profileData['cv_quick'] = $newCvQuick;
-                $candidate->profile_data = $profileData;
-                $candidate->save();
-                
-                \Log::info('Saved cv_quick to candidate profile', [
-                    'candidate_id' => $candidate->id,
-                    'education_count' => count($newCvQuick['education']),
-                    'work_count' => count($newCvQuick['work_experiences']),
-                    'hard_skills_count' => count($newCvQuick['skills']['hard'] ?? []),
-                    'soft_skills_count' => count($newCvQuick['skills']['soft'] ?? []),
-                ]);
-            } else {
-                // Form data is empty, don't overwrite existing profile
-                \Log::warning('CV form submission has no data - preserving existing profile_data', [
-                    'candidate_id' => $candidate->id,
-                    'existing_education' => count($candidate->profile_data['cv_quick']['education'] ?? []),
-                    'existing_work' => count($candidate->profile_data['cv_quick']['work_experiences'] ?? []),
-                ]);
-            }
-        }
+        
 
         // Kiểm tra đã ứng tuyển chưa
         $existingApplication = Application::where('job_id', $job->id)
@@ -1155,9 +790,7 @@ class CandidateJobController extends Controller
             'candidate_id' => $candidate->id,
             'status' => 'submitted',
             'cv_file_path' => $filePath,
-            'cover_letter' => $validated['cover_letter'] ?? null,
             'cv_data' => !empty($cvDataToStore) ? $cvDataToStore : null,
-            'cv_proof_files' => $cvProofFiles,
             'applied_at' => now(),
         ]);
 
@@ -1189,59 +822,25 @@ class CandidateJobController extends Controller
             \Log::warning('Failed to send application confirmation email: ' . $e->getMessage());
         }
 
-        // ── Immediate AI match for candidate-facing advisory (DEMO_MODE only) ──
-        // In demo mode: calls AI service synchronously for immediate candidate advisory.
-        // In non-demo mode: skips synchronous AI call, preserving prior apply behavior.
+        // ── DO NOT score yet — wait for candidate to confirm CV info first ──
+        // AI scoring will happen after candidate confirms extracted info (submitFollowup)
         $aiAdvisory = null;
-        if (config('app.demo_mode')) {
-            try {
-                $orchestratorClient = app(\App\Services\AI\AIOrchestratorClient::class);
-                $aiResponse = $orchestratorClient->matchCandidateToJob(
-                    $this->buildAiMatchPayload($candidate, $job, $application)
-                );
 
-                // Persist sanitized result (OpenSpec: allowed when application_id is explicit)
-                $sanitizedKeys = [
-                    'fit_score', 'rank_label', 'confidence_label',
-                    'score_breakdown', 'matched_skills', 'missing_skills',
-                    'missing_preferred_skills', 'risk_flags',
-                    'retrieval_method', 'pipeline_version', 'generated_at',
-                ];
-                $sanitized = array_intersect_key($aiResponse, array_flip($sanitizedKeys));
-                $application->update(['ai_match_result' => $sanitized]);
-                $aiAdvisory = $sanitized;
+        $message = 'Nộp đơn thành công! Vui lòng xác nhận thông tin CV để AI chấm điểm.';
 
-                \Log::info('Immediate AI match completed for candidate advisory', [
-                    'application_id' => $application->id,
-                    'fit_score'      => $aiAdvisory['fit_score'] ?? null,
-                    'risk_flags'     => $aiAdvisory['risk_flags'] ?? [],
-                ]);
-            } catch (\Throwable $e) {
-                \Log::warning('Immediate AI match failed for application ' . $application->id . ': ' . $e->getMessage());
-                // $aiAdvisory remains null — candidate sees fallback status
-            }
-        }
+        // Extract CV preview from actual file content (not profile data)
+        $cvExtractedInfo = $this->extractCvPreview($cvContent, $candidate, null);
 
-        $message = 'Nộp đơn ứng tuyển thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.';
-        
-        // Use AI advisory score if available, fallback to legacy auto-score
-        $displayScore = $aiAdvisory['fit_score'] ?? $aiScore;
-        if ($displayScore !== null) {
-            $message .= sprintf(' 🤖 Điểm phù hợp: %.1f/10', $displayScore);
-        }
-
-        // Compute follow-up fields from AI result (flash for immediate display after apply)
-        $followupFields = [];
-        if ($aiAdvisory && is_array($aiAdvisory)) {
-            $candidate->refresh();
-            $followupFields = $this->detectMissingFollowupFields($aiAdvisory, $candidate, $job);
-        }
+        // Compute follow-up fields based on what's missing in the CV
+        $candidate->refresh();
+        $followupFields = $this->detectMissingFollowupFields([], $candidate, $job);
 
         return redirect()->route('jobs.show', $job->id)
             ->with('status', $message)
-            ->with('ai_score', $displayScore)
-            ->with('ai_advisory', $aiAdvisory)
+            ->with('ai_score', null)
+            ->with('ai_advisory', null)
             ->with('ai_followup_fields', $followupFields)
+            ->with('cv_extracted_info', $cvExtractedInfo)
             ->withFragment('apply-form');
     }
 
@@ -1379,13 +978,28 @@ class CandidateJobController extends Controller
             \Log::warning('AI follow-up: re-run failed for application ' . $application->id . ': ' . $e->getMessage());
         }
 
-        $message = $aiAdvisory
-            ? sprintf('✅ Đã cập nhật! AI đã đánh giá lại — Điểm phù hợp: %.1f/10', $aiAdvisory['fit_score'] ?? 0)
-            : '✅ Thông tin đã được bổ sung thành công. AI tạm thời chưa khả dụng — kết quả sẽ tự động cập nhật khi AI service hoạt động lại.';
+        // Also run rule-based scoring if AI service was unavailable
+        if (!$aiAdvisory) {
+            try {
+                $cvContent = '';
+                if ($application->cv_data && isset($application->cv_data['_raw_text'])) {
+                    $cvContent = $application->cv_data['_raw_text'];
+                }
+                $this->cvAutoScoringService->scoreAndPersist($application, $cvContent);
+                $application->refresh();
+            } catch (\Throwable $e) {
+                \Log::warning('Fallback scoring failed: ' . $e->getMessage());
+            }
+        }
+
+        $displayScore = $aiAdvisory['fit_score'] ?? ($application->ai_score ?? null);
+        $message = $displayScore !== null
+            ? sprintf('✅ AI đã chấm điểm! Điểm phù hợp: %.1f/10', $displayScore)
+            : '✅ Thông tin đã được bổ sung. Nhà tuyển dụng sẽ xem xét sớm.';
 
         return redirect()->route('jobs.show', $job->id)
             ->with('status', $message)
-            ->with('ai_score', $aiAdvisory['fit_score'] ?? null)
+            ->with('ai_score', $displayScore)
             ->with('ai_advisory', $aiAdvisory)
             ->withFragment('apply-form');
     }
@@ -1400,11 +1014,16 @@ class CandidateJobController extends Controller
     {
         $missing = [];
         $profileData = is_array($candidate->profile_data) ? $candidate->profile_data : [];
-        $confidenceLow = ($aiResult['confidence_label'] ?? '') === 'low';
 
-        // 1. Empty candidate profile fields → always ask regardless of confidence
-        if (!$candidate->phone) {
-            $missing[] = 'phone';
+        // Priority-ordered checks: most impactful fields first
+        // Always check all fields (not gated by confidence level)
+
+        // 1. Core fields that heavily impact AI scoring
+        if (!$candidate->experience && !isset($profileData['cv_quick']['certifications']['years_experience'])) {
+            $missing[] = 'years_experience';
+        }
+        if (empty($candidate->skills) && empty($profileData['skills'] ?? [])) {
+            $missing[] = 'key_skills';
         }
         if (!$candidate->education) {
             $missing[] = 'education_level';
@@ -1413,26 +1032,12 @@ class CandidateJobController extends Controller
             $missing[] = 'primary_role';
         }
 
-        // 2. Low confidence → AI couldn't extract enough, ask core data fields
-        if ($confidenceLow) {
-            if (!$candidate->experience && !in_array('years_experience', $missing)) {
-                $missing[] = 'years_experience';
-            }
-            if (empty($candidate->skills) && !in_array('key_skills', $missing)) {
-                $missing[] = 'key_skills';
-            }
-        }
-
-        // 3. Risk flags mentioning missing/unclear information
+        // 2. Risk flags from AI mentioning missing info
         foreach ($aiResult['risk_flags'] ?? [] as $flag) {
             $lower = mb_strtolower($flag);
             if ((str_contains($lower, 'experience') || str_contains($lower, 'kinh nghiệm'))
                 && !in_array('years_experience', $missing)) {
                 $missing[] = 'years_experience';
-            }
-            if ((str_contains($lower, 'education') || str_contains($lower, 'học vấn') || str_contains($lower, 'trình độ'))
-                && !in_array('education_level', $missing)) {
-                $missing[] = 'education_level';
             }
             if ((str_contains($lower, 'english') || str_contains($lower, 'language') || str_contains($lower, 'tiếng anh'))
                 && !in_array('english_level', $missing)) {
@@ -1440,28 +1045,126 @@ class CandidateJobController extends Controller
             }
         }
 
-        // 4. Missing portfolio/GitHub for technical roles — only when there is also
-        //    a low-confidence signal (not by default on every dev-role application).
-        if ($confidenceLow) {
-            $jobTitle = mb_strtolower($job->title ?? '');
-            $isDevRole = str_contains($jobTitle, 'developer') || str_contains($jobTitle, 'engineer')
-                      || str_contains($jobTitle, 'backend')   || str_contains($jobTitle, 'frontend')
-                      || str_contains($jobTitle, 'fullstack')  || str_contains($jobTitle, 'devops');
-            if ($isDevRole) {
-                if (!$candidate->github_url && !in_array('github_url', $missing)) {
-                    $missing[] = 'github_url';
-                }
-                if (!$candidate->portfolio_url && !in_array('portfolio_url', $missing)) {
-                    $missing[] = 'portfolio_url';
-                }
+        // Cap at 2 questions for concise, focused UX
+        return array_slice(array_unique($missing), 0, 2);
+    }
+
+    /**
+     * Extract a structured preview of CV data for candidate confirmation.
+     * Uses heuristic regex + AI match result to present extracted info.
+     */
+    private function extractCvPreview(string $cvContent, Candidate $candidate, ?array $aiAdvisory): array
+    {
+        $preview = [
+            'name' => null,
+            'email' => null,
+            'phone' => null,
+            'skills' => [],
+            'experience_years' => null,
+            'education' => null,
+            'summary' => null,
+            'missing_skills' => [],
+        ];
+
+        if (empty($cvContent) || str_starts_with($cvContent, '[PDF uploaded')) {
+            // No content extracted — return minimal info
+            $preview['name'] = $candidate->name;
+            $preview['email'] = $candidate->email;
+            $preview['summary'] = 'Không thể đọc nội dung CV. Vui lòng kiểm tra file.';
+            return $preview;
+        }
+
+        $text = $cvContent;
+
+        // ── Extract name: first non-empty line or known pattern ──
+        if (preg_match('/^([A-ZÀ-Ỹ][A-ZÀ-Ỹa-zà-ỹ\s]{2,50})$/mu', $text, $m)) {
+            $preview['name'] = trim($m[1]);
+        }
+        if (!$preview['name']) {
+            // Try: "Họ tên: ..." or "Name: ..."
+            if (preg_match('/(?:họ\s*(?:và\s*)?tên|full\s*name|name)\s*[:\-]\s*(.+)/iu', $text, $m)) {
+                $preview['name'] = trim($m[1]);
+            }
+        }
+        if (!$preview['name']) {
+            $preview['name'] = $candidate->name; // final fallback
+        }
+
+        // ── Extract email from CV text ──
+        if (preg_match('/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/', $text, $m)) {
+            $preview['email'] = $m[0];
+        } else {
+            $preview['email'] = $candidate->email;
+        }
+
+        // ── Extract phone from CV text ──
+        if (preg_match('/(?:0\d{9,10}|\+84\d{9,10}|(?:\d{3,4}[\s\-\.]\d{3,4}[\s\-\.]\d{3,4}))/', $text, $m)) {
+            $preview['phone'] = trim($m[0]);
+        }
+
+        // ── Extract skills: look for tech keywords ──
+        $knownSkills = ['PHP', 'Laravel', 'JavaScript', 'TypeScript', 'React', 'Vue.js', 'Vue',
+            'Node.js', 'Angular', 'Python', 'Django', 'Flask', 'Java', 'Spring', 'C#', '.NET',
+            'Go', 'Golang', 'Rust', 'Ruby', 'Rails', 'Swift', 'Kotlin',
+            'HTML', 'CSS', 'SASS', 'Tailwind', 'Bootstrap',
+            'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle', 'SQL Server',
+            'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Linux', 'Git', 'CI/CD',
+            'REST', 'GraphQL', 'API', 'Microservices',
+            'TensorFlow', 'PyTorch', 'Scikit-learn', 'Pandas', 'NumPy',
+            'Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision',
+            'Data Analysis', 'Power BI', 'Tableau', 'Excel',
+            'Selenium', 'Playwright', 'JUnit', 'Testing',
+            'Agile', 'Scrum', 'Jira', 'Figma', 'Photoshop'];
+        $foundSkills = [];
+        foreach ($knownSkills as $skill) {
+            if (mb_stripos($text, $skill) !== false) {
+                $foundSkills[] = $skill;
+            }
+        }
+        $preview['skills'] = array_slice(array_unique($foundSkills), 0, 12);
+
+        // ── Extract experience years ──
+        if (preg_match('/(\d+)\s*(?:\+\s*)?(?:năm|years?)\s*(?:kinh nghiệm|experience|of experience)/iu', $text, $m)) {
+            $preview['experience_years'] = (int)$m[1];
+        }
+        if (!$preview['experience_years'] && preg_match('/(?:kinh nghiệm|experience)\s*[:\-]?\s*(\d+)/iu', $text, $m)) {
+            $preview['experience_years'] = (int)$m[1];
+        }
+
+        // ── Extract education ──
+        $eduKeywords = [
+            'Tiến sĩ' => 'Tiến sĩ', 'Thạc sĩ' => 'Thạc sĩ',
+            'Đại học' => 'Đại học', 'Cao đẳng' => 'Cao đẳng', 'Trung cấp' => 'Trung cấp',
+            'PhD' => 'Tiến sĩ', 'Master' => 'Thạc sĩ', 'Bachelor' => 'Đại học',
+            'University' => 'Đại học', 'College' => 'Cao đẳng',
+            'UNIVERSITY' => 'Đại học', 'EDUCATION' => 'Đại học',
+        ];
+        foreach ($eduKeywords as $kw => $label) {
+            if (mb_stripos($text, $kw) !== false) {
+                $preview['education'] = $label;
+                break;
             }
         }
 
-        // english_level is only asked when triggered by risk flags (rule #3 above)
-        // — not asked unconditionally.
+        // Try to extract school name
+        if (preg_match('/(?:EDUCATION|HỌC VẤN|TRƯỜNG)\s*[:\-]?\s*(.{5,80})/iu', $text, $m)) {
+            $schoolInfo = trim($m[1]);
+            if ($preview['education']) {
+                $preview['education'] = $preview['education'] . ' — ' . $schoolInfo;
+            } else {
+                $preview['education'] = $schoolInfo;
+            }
+        }
 
-        // Cap at 6 questions to keep the form compact
-        return array_slice(array_unique($missing), 0, 6);
+        // ── Summary: first meaningful chunk of CV ──
+        $preview['summary'] = mb_substr(trim($text), 0, 300);
+
+        // ── Missing skills from AI ──
+        if ($aiAdvisory) {
+            $preview['missing_skills'] = $aiAdvisory['missing_skills'] ?? [];
+        }
+
+        return $preview;
     }
 
     /**
@@ -1546,6 +1249,36 @@ class CandidateJobController extends Controller
         }
     }
 
+
+    /**
+     * Extract text từ file PDF sử dụng Smalot\PdfParser
+     */
+    private function extractTextFromPdf(string $filePath): string
+    {
+        try {
+            if (class_exists(\Smalot\PdfParser\Parser::class)) {
+                $parser = new \Smalot\PdfParser\Parser();
+                $pdf = $parser->parseFile($filePath);
+                $text = $pdf->getText();
+                $text = preg_replace('/\s+/', ' ', $text);
+                return trim($text);
+            }
+
+            // Fallback: pdftotext (poppler-utils)
+            $output = [];
+            $returnCode = 0;
+            exec('pdftotext ' . escapeshellarg($filePath) . ' -', $output, $returnCode);
+            if ($returnCode === 0 && !empty($output)) {
+                return trim(implode("\n", $output));
+            }
+
+            \Log::warning('No PDF parser available.');
+            return '[PDF uploaded - extraction unavailable]';
+        } catch (\Throwable $e) {
+            \Log::warning('PDF extract error: ' . $e->getMessage());
+            return '';
+        }
+    }
     /**
      * Đệ quy extract text từ các element của PHPWord
      */

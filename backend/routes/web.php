@@ -65,8 +65,9 @@ Route::post('/jobs/{id}/apply', [CandidateJobController::class, 'apply'])->name(
 Route::middleware([RoleMiddleware::class . ':candidate'])->prefix('candidate')->group(function () {
     Route::get('/dashboard', [CandidateJobController::class, 'dashboard'])->name('candidate.dashboard');
     Route::get('/applications', [CandidateJobController::class, 'myApplications'])->name('candidate.applications');
-    Route::get('/profile', [CandidateJobController::class, 'profile'])->name('candidate.profile');
-    Route::post('/profile', [CandidateJobController::class, 'updateProfile'])->name('candidate.profile.update');
+    // Profile removed — candidates now only upload CV files
+    // Route::get('/profile', [CandidateJobController::class, 'profile'])->name('candidate.profile');
+    // Route::post('/profile', [CandidateJobController::class, 'updateProfile'])->name('candidate.profile.update');
 
     // AI follow-up: candidate provides missing info after apply (DEMO_MODE gated in controller)
     Route::post('/jobs/{id}/ai-followup', [CandidateJobController::class, 'submitFollowup'])->name('jobs.ai-followup');
@@ -107,6 +108,9 @@ Route::middleware([RoleMiddleware::class . ':recruiter,admin', EnsureRecruiterHa
     Route::get('/applications/{id}/ai-xray', [AdminController::class, 'aiXray'])->name('admin.applications.ai-xray');
     Route::post('/applications/{id}/ai-refresh', [AdminController::class, 'refreshAiMatch'])->name('admin.applications.ai-refresh');
     Route::post('/applications/{id}/ai-feedback', [AdminController::class, 'storeAiFeedback'])->name('admin.applications.ai-feedback');
+
+    // Phase 19: AI Decision Lab
+    Route::get('/applications/{id}/ai-decision-lab', [AdminController::class, 'aiDecisionLab'])->name('admin.applications.ai-decision-lab');
 
     // Phase 7: JD Quality Checker
     Route::post('/jobs/check-quality', [AdminController::class, 'checkJdQuality'])->name('admin.jobs.check-quality');

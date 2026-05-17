@@ -22,7 +22,7 @@
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
                 <div class="flex items-center space-x-4 mb-3">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-xl">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-xl" style="background: linear-gradient(to bottom right, #6366f1, #a855f7);">
                         <span class="text-2xl font-bold text-white">
                             <?php echo e(strtoupper(substr($job->company->name ?? 'C', 0, 1))); ?>
 
@@ -49,7 +49,7 @@
 
             <div class="flex items-center space-x-3">
                 
-                <a href="<?php echo e(route('admin.jobs.ai-shortlist', $job->id)); ?>" class="inline-flex items-center px-5 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold hover:from-violet-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
+                <a href="<?php echo e(route('admin.jobs.ai-shortlist', $job->id)); ?>" class="inline-flex items-center px-5 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold hover:from-violet-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300" style="background: linear-gradient(to right, #8b5cf6, #9333ea);">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                     </svg>
@@ -116,11 +116,17 @@
                         'amber' => 'from-amber-400 to-orange-500',
                         'red' => 'from-red-400 to-pink-500',
                     ][$scoreColor];
+                    $scoreStyle = [
+                        'gray' => 'background: linear-gradient(to bottom right, #9ca3af, #6b7280);',
+                        'emerald' => 'background: linear-gradient(to bottom right, #34d399, #14b8a6);',
+                        'amber' => 'background: linear-gradient(to bottom right, #fbbf24, #f97316);',
+                        'red' => 'background: linear-gradient(to bottom right, #f87171, #ec4899);',
+                    ][$scoreColor];
                 ?>
                 
                 <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden card-hover animate-fade-in" style="animation-delay: <?php echo e($index * 0.05); ?>s;">
                     <!-- Card Header -->
-                    <div class="relative p-6 bg-gradient-to-br <?php echo e($scoreBg); ?>">
+                    <div class="relative p-6 bg-gradient-to-br <?php echo e($scoreBg); ?>" style="<?php echo e($scoreStyle); ?>">
                         <div class="absolute inset-0 bg-black/5"></div>
                         <div class="relative flex items-center justify-between">
                             <div class="flex items-center space-x-3">
@@ -364,7 +370,7 @@
                         <div class="flex flex-col gap-3">
                             
                             <a href="<?php echo e(route('admin.jobs.ai-shortlist', $job->id)); ?>"
-                               class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-gradient-to-r from-violet-50 to-purple-50 text-purple-700 font-semibold hover:from-violet-600 hover:to-purple-700 hover:text-white transition-all duration-300">
+                               class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-gradient-to-r from-violet-50 to-purple-50 text-purple-700 font-semibold hover:from-violet-600 hover:to-purple-700 hover:text-white transition-all duration-300" style="background: linear-gradient(to right, #f5f3ff, #faf5ff);">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                                 </svg>
@@ -504,7 +510,7 @@
         <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-16 text-center">
             <div class="relative inline-block mb-8">
                 <div class="absolute inset-0 bg-indigo-100 rounded-full blur-2xl opacity-60"></div>
-                <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center" style="background: linear-gradient(to bottom right, #e0e7ff, #f3e8ff);">
                     <svg class="w-16 h-16 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>

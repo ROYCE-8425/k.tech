@@ -1,0 +1,17 @@
+{
+  "domain": "Frontend Development",
+  "current_trends": [
+    "Sự thống trị của React, Next.js và hệ sinh thái Server Components",
+    "Tailwind CSS và các headless UI libraries (Radix, HeadlessUI) đang là tiêu chuẩn mới",
+    "Quản lý state chuyển dịch sang Server State (React Query) và Lightweight Client State (Zustand)",
+    "Tối ưu Core Web Vitals và Performance là yêu cầu quan trọng"
+  ],
+  "risk_patterns": [
+    "Thiếu kiến thức về responsive design hoặc chỉ dùng framework UI đóng sẵn (Bootstrap)",
+    "Không có kinh nghiệm tối ưu hóa bundle size hoặc lazy loading"
+  ],
+  "seniority_expectations": {
+    "mid": "Thành thạo component lifecycle, custom hooks, hiểu về Webpack/Vite.",
+    "senior": "Thiết kế Design System, micro-frontends, tối ưu SSR/SSG, mentoring."
+  }
+}

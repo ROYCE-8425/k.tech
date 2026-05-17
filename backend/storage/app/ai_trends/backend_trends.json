@@ -1,0 +1,17 @@
+{
+  "domain": "Backend Development",
+  "current_trends": [
+    "Dịch chuyển từ Monolith sang Microservices và Serverless",
+    "Ưu tiên ứng viên có kinh nghiệm với containerization (Docker, Kubernetes)",
+    "Kiến trúc Event-driven (Kafka, RabbitMQ) đang là điểm cộng lớn",
+    "Bảo mật API và tối ưu hiệu suất (Caching, Redis) là kỹ năng cốt lõi"
+  ],
+  "risk_patterns": [
+    "Chỉ biết CRUD cơ bản, thiếu kiến thức về database indexing/optimization",
+    "Thiếu kinh nghiệm deploy hoặc CI/CD thực tế"
+  ],
+  "seniority_expectations": {
+    "mid": "Có thể tự thiết kế database schema, hiểu về N+1 query và caching.",
+    "senior": "System design, system architecture, performance tuning, mentoring."
+  }
+}

@@ -44,7 +44,7 @@
     </div>
 
     <!-- Score Legend -->
-    <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-4 mb-6">
+    <div class="glass-panel rounded-2xl p-4 mb-6">
         <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
             <span class="text-gray-500 font-medium">AI Fit Score:</span>
             <div class="flex items-center">
@@ -169,7 +169,7 @@
                     $conf = $confLabels[$item['confidence_label']] ?? $confLabels['low'];
                 ?>
 
-                <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden animate-fade-in <?php echo e($index === 0 ? 'ring-2 ring-violet-200' : ''); ?>" style="animation-delay: <?php echo e($index * 0.03); ?>s;"
+                <div class="glass-card rounded-2xl overflow-hidden animate-fade-in <?php echo e($index === 0 ? 'ring-2 ring-violet-200' : ''); ?>" style="animation-delay: <?php echo e($index * 0.03); ?>s;"
                      x-data="{ expanded: <?php echo e($index === 0 ? 'true' : 'false'); ?> }">
 
                     <!-- Main Row -->
@@ -361,23 +361,36 @@
                                     </div>
                                 <?php endif; ?>
 
-                                <!-- Metadata + Refresh -->
+                                <!-- Metadata + Actions -->
                                 <div class="flex items-center justify-between pt-2 border-t border-gray-100">
                                     <div class="text-xs text-gray-400 space-y-0.5">
                                         <div>Pipeline: <?php echo e($item['pipeline_version']); ?></div>
                                         <div>Retrieval: <?php echo e($item['retrieval_method']); ?></div>
                                     </div>
 
-                                    <form action="<?php echo e(route('admin.applications.ai-refresh', $item['application_id'])); ?>" method="POST"
-                                          onsubmit="return confirm('Tính lại kết quả AI cho ứng viên này?')">
-                                        <?php echo csrf_field(); ?>
-                                        <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
-                                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                            </svg>
-                                            Tính lại AI
-                                        </button>
-                                    </form>
+                                    <div class="flex items-center gap-2">
+                                        <?php if(!$item['error'] && $item['persisted']): ?>
+                                            <a href="<?php echo e(route('admin.applications.ai-xray', $item['application_id'])); ?>"
+                                               class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-sm font-semibold hover:bg-indigo-600 hover:text-white transition-all duration-200">
+                                                🔬 X-Ray
+                                            </a>
+                                            <a href="<?php echo e(route('admin.applications.ai-decision-lab', $item['application_id'])); ?>"
+                                               class="inline-flex items-center px-4 py-2 rounded-xl bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-600 hover:text-white transition-all duration-200">
+                                                🧪 Decision Lab
+                                            </a>
+                                        <?php endif; ?>
+
+                                        <form action="<?php echo e(route('admin.applications.ai-refresh', $item['application_id'])); ?>" method="POST"
+                                              onsubmit="return confirm('Tính lại kết quả AI cho ứng viên này?')">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
+                                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                </svg>
+                                                Tính lại AI
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
 
                                 
@@ -495,7 +508,7 @@
         </div>
     <?php else: ?>
         <!-- Empty State -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-16 text-center">
+        <div class="glass-panel rounded-3xl p-16 text-center">
             <div class="relative inline-block mb-8">
                 <div class="absolute inset-0 bg-violet-100 rounded-full blur-2xl opacity-60"></div>
                 <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">

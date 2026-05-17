@@ -41,12 +41,16 @@
         <div class="flex items-center gap-3">
             <span class="{{ $rank['bg'] }} {{ $rank['text'] }} px-4 py-1.5 rounded-full text-sm font-bold">{{ $rank['label'] }}</span>
             <span class="{{ $conf['bg'] }} {{ $conf['text'] }} px-4 py-1.5 rounded-full text-sm font-bold">{{ $conf['icon'] }} {{ $conf['label'] }}</span>
+            <a href="{{ route('admin.applications.ai-decision-lab', $application->id) }}"
+               class="inline-flex items-center px-4 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-bold hover:bg-teal-600 hover:text-white transition-all duration-200">
+                🧪 Decision Lab
+            </a>
         </div>
     </div>
 </div>
 
 {{-- ═══════ SECTION 1: AI SCORE CARD ═══════ --}}
-<div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 mb-6 animate-xray-in">
+<div class="glass-panel rounded-2xl p-6 mb-6 animate-xray-in">
     <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
         <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-sm">📊</span>
         AI Score Card
@@ -121,8 +125,91 @@
     @endif
 </div>
 
+{{-- ═══════ SECTION 1.5: MULTI-AGENT COUNCIL ═══════ --}}
+@php
+    $council = $aiResult['multi_agent_council'] ?? null;
+    $agentColors = [
+        'SkillGraphAgent' => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'icon' => '🔗'],
+        'ExperienceFitAgent' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'icon' => '⏳'],
+        'DomainTrendAgent' => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'icon' => '📈'],
+        'RiskCriticAgent' => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'border' => 'border-red-200', 'icon' => '⚠️'],
+        'ConsensusAgent' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'border' => 'border-indigo-200', 'icon' => '⚖️'],
+    ];
+@endphp
+@if($council)
+    <div class="glass-panel rounded-2xl p-6 mb-6 animate-xray-in" style="animation-delay:.05s">
+        <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white text-sm">🤖</span>
+            AI Scoring Council
+        </h2>
+
+        {{-- Consensus Summary --}}
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl p-5 mb-6">
+            <div class="flex items-start gap-4">
+                <div class="text-3xl">⚖️</div>
+                <div>
+                    <h3 class="font-bold text-indigo-900 text-lg mb-1">{{ $council['consensus_label'] ?? 'Tổng hợp ý kiến' }}</h3>
+                    <p class="text-sm text-indigo-800 leading-relaxed">{{ $council['summary'] ?? '' }}</p>
+                    @if(!empty($council['reviewer_guidance']))
+                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 rounded-lg text-xs font-semibold text-indigo-700">
+                            <span>💡 Lời khuyên cho Recruiter:</span> {{ $council['reviewer_guidance'] }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Agent Opinions --}}
+        @if(!empty($council['agent_opinions']))
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach($council['agent_opinions'] as $opinion)
+                    @php
+                        $name = $opinion['agent_name'] ?? 'Agent';
+                        $style = $agentColors[$name] ?? ['bg'=>'bg-gray-50','text'=>'text-gray-700','border'=>'border-gray-200','icon'=>'🤖'];
+                    @endphp
+                    <div class="rounded-xl p-4 border {{ $style['border'] }} {{ $style['bg'] }}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">{{ $style['icon'] }}</span>
+                                <span class="font-bold {{ $style['text'] }}">{{ $name }}</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/60 {{ $style['text'] }}">
+                                {{ $opinion['verdict'] ?? '' }}
+                            </span>
+                        </div>
+                        
+                        @if(!empty($opinion['strengths']))
+                            <div class="mb-2">
+                                <p class="text-xs font-semibold text-emerald-700 mb-1">Điểm mạnh:</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-700 space-y-0.5">
+                                    @foreach($opinion['strengths'] as $s) <li>{{ $s }}</li> @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if(!empty($opinion['concerns']))
+                            <div class="mb-2">
+                                <p class="text-xs font-semibold text-red-700 mb-1">Điểm yếu / Rủi ro:</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-700 space-y-0.5">
+                                    @foreach($opinion['concerns'] as $c) <li>{{ $c }}</li> @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if(!empty($opinion['notes']))
+                            <div class="mt-3 pt-3 border-t border-black/5 text-xs text-gray-600">
+                                <strong>Ghi chú:</strong> {{ $opinion['notes'] }}
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+@endif
+
 {{-- ═══════ SECTION 2: X-RAY GRAPH ═══════ --}}
-<div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 mb-6 animate-xray-in" style="animation-delay:.1s"
+<div class="glass-panel rounded-2xl p-6 mb-6 animate-xray-in" style="animation-delay:.1s"
      x-data="xrayGraph()" x-init="init()">
     <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
         <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-sm">🔗</span>
@@ -138,61 +225,14 @@
         <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-400"></span> Phù hợp gián tiếp</span>
     </div>
 
-    {{-- SVG Graph --}}
+    {{-- SVG Graph rendered via x-html to avoid Alpine x-for + SVG template issues --}}
     <div class="relative overflow-x-auto">
-        <svg :viewBox="'0 0 ' + svgW + ' ' + svgH" class="w-full" style="min-height: 340px; max-height: 540px;"
-             xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#10b981"/></marker>
-                <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ef4444"/></marker>
-                <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3b82f6"/></marker>
-                <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
-
-            {{-- Edges --}}
-            <template x-for="edge in edges" :key="edge.id">
-                <g>
-                    <line :x1="edge.x1" :y1="edge.y1" :x2="edge.x2" :y2="edge.y2"
-                          :stroke="edge.color" :stroke-width="edge.highlighted ? 3 : 1.5"
-                          :stroke-dasharray="edge.dashed ? '6,4' : 'none'"
-                          :opacity="hoveredNode && !edge.highlighted ? 0.15 : 1"
-                          class="transition-all duration-200"
-                          :marker-end="'url(#arrow-' + edge.arrowColor + ')'"/>
-                    <text x-show="edge.label && (edge.highlighted || !hoveredNode)"
-                          :x="(edge.x1+edge.x2)/2" :y="(edge.y1+edge.y2)/2 - 6"
-                          text-anchor="middle" class="text-[10px] fill-gray-400 select-none" x-text="edge.label"/>
-                </g>
-            </template>
-
-            {{-- Nodes --}}
-            <template x-for="node in nodes" :key="node.id">
-                <g :transform="'translate('+node.x+','+node.y+')'" class="cursor-pointer"
-                   @mouseenter="hoverNode(node.id)" @mouseleave="hoverNode(null)">
-                    {{-- Node circle --}}
-                    <circle r="20" :fill="node.fill" :stroke="node.stroke" stroke-width="2.5"
-                            :opacity="hoveredNode && hoveredNode !== node.id && !node.highlighted ? 0.3 : 1"
-                            :filter="node.highlighted ? 'url(#glow)' : ''"
-                            class="transition-all duration-200"/>
-                    {{-- Icon --}}
-                    <text text-anchor="middle" dominant-baseline="central" class="text-base select-none pointer-events-none"
-                          x-text="node.icon" :opacity="hoveredNode && hoveredNode !== node.id && !node.highlighted ? 0.3 : 1"/>
-                    {{-- Label --}}
-                    <text :y="30" text-anchor="middle" class="text-[11px] font-semibold select-none pointer-events-none"
-                          :fill="hoveredNode && hoveredNode !== node.id && !node.highlighted ? '#d1d5db' : '#374151'"
-                          x-text="node.label.length > 14 ? node.label.slice(0,12)+'…' : node.label"/>
-                    {{-- Tooltip --}}
-                    <g x-show="hoveredNode === node.id && node.tooltip" x-transition>
-                        <rect :x="-60" :y="-52" width="120" height="24" rx="6" fill="rgba(17,24,39,0.9)"/>
-                        <text :y="-36" text-anchor="middle" class="text-[10px] fill-white select-none" x-text="node.tooltip"/>
-                    </g>
-                </g>
-            </template>
-        </svg>
+        <div x-html="renderSvg()"></div>
     </div>
 </div>
 
 {{-- ═══════ SECTION 3: PROCESSING TIMELINE ═══════ --}}
-<div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 animate-xray-in" style="animation-delay:.2s">
+<div class="glass-panel rounded-2xl p-6 animate-xray-in" style="animation-delay:.2s">
     <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
         <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-sm">⏱</span>
         AI Processing Timeline
@@ -257,97 +297,107 @@ function xrayGraph() {
             const missingPref = @json($missingPref);
             const related = @json($related);
 
-            const allSkills = [...new Set([...matched, ...missing, ...missingPref])];
             const relTargets = related.map(r => r.target_skill);
             const relSources = related.map(r => r.candidate_skill);
 
-            // Compute layout
-            const totalRows = Math.max(1, allSkills.length + related.length);
+            const totalRows = Math.max(1, matched.length + missing.length + missingPref.length + related.length);
             this.svgH = Math.max(340, totalRows * 48 + 100);
-            const cx = 80, jx = this.svgW - 80;
-            const midX = this.svgW / 2;
+            const cx = 80, jx = this.svgW - 80, midX = this.svgW / 2;
 
-            // Candidate + Job anchor nodes
             const nodes = [
-                { id:'candidate', x:cx, y:this.svgH/2, icon:'🧑', label:'{{ Str::limit($candidate->name ?? "Ứng viên", 14) }}', fill:'#eef2ff', stroke:'#6366f1', tooltip:null },
-                { id:'job', x:jx, y:this.svgH/2, icon:'📋', label:'{{ Str::limit($job->title ?? "Vị trí", 14) }}', fill:'#fef3c7', stroke:'#f59e0b', tooltip:null },
+                { id:'candidate', x:cx, y:this.svgH/2, icon:'🧑', label:@json(Str::limit($candidate->name ?? 'Ứng viên', 14)), fill:'#eef2ff', stroke:'#6366f1', tooltip:null },
+                { id:'job', x:jx, y:this.svgH/2, icon:'📋', label:@json(Str::limit($job->title ?? 'Vị trí', 14)), fill:'#fef3c7', stroke:'#f59e0b', tooltip:null },
             ];
             const edges = [];
-
-            // Position skills in the middle
             let row = 0;
-            const totalSkillNodes = matched.length + missing.length + missingPref.length;
-            const startY = Math.max(40, (this.svgH - totalSkillNodes * 46) / 2);
+            const startY = Math.max(40, (this.svgH - totalRows * 46) / 2);
 
-            // Matched skills (green)
             matched.forEach(s => {
                 const ny = startY + row * 46;
-                const isRelSource = relSources.includes(s);
                 nodes.push({ id:'m_'+s, x:midX, y:ny, icon:'✓', label:s, fill:'#d1fae5', stroke:'#10b981', tooltip:'Phù hợp chính xác' });
-                edges.push({ id:'ce_'+s, x1:cx+20, y1:this.svgH/2, x2:midX-20, y2:ny, color:'#10b981', dashed:false, arrowColor:'green', label:null, sourceNode:'candidate', targetNode:'m_'+s });
-                edges.push({ id:'je_'+s, x1:midX+20, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#10b981', dashed:false, arrowColor:'green', label:null, sourceNode:'m_'+s, targetNode:'job' });
+                edges.push({ id:'ce_'+s, x1:cx+20, y1:this.svgH/2, x2:midX-20, y2:ny, color:'#10b981', dashed:false, arrowColor:'green', label:null });
+                edges.push({ id:'je_'+s, x1:midX+20, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#10b981', dashed:false, arrowColor:'green', label:null });
                 row++;
             });
 
-            // Related matches (blue dashed) — show candidate_skill → target_skill
             related.forEach((r, i) => {
                 const ny = startY + row * 46;
                 const simPct = Math.round(r.similarity * 100) + '%';
                 const relLabel = (r.relation_type || '').replace(/_/g,' ');
-                // Candidate skill node (if not already a matched node)
-                const csId = 'rs_' + r.candidate_skill + '_' + i;
-                const tsId = 'rt_' + r.target_skill + '_' + i;
-                nodes.push({ id:csId, x:midX - 100, y:ny, icon:'◈', label:r.candidate_skill, fill:'#dbeafe', stroke:'#3b82f6', tooltip:'Kỹ năng ứng viên' });
-                nodes.push({ id:tsId, x:midX + 100, y:ny, icon:'◇', label:r.target_skill, fill:'#ede9fe', stroke:'#8b5cf6', tooltip:'Yêu cầu (' + relLabel + ', ' + simPct + ')' });
-                edges.push({ id:'re_c_'+i, x1:cx+20, y1:this.svgH/2, x2:midX-120, y2:ny, color:'#3b82f6', dashed:true, arrowColor:'blue', label:null, sourceNode:'candidate', targetNode:csId });
-                edges.push({ id:'re_m_'+i, x1:midX-80, y1:ny, x2:midX+80, y2:ny, color:'#3b82f6', dashed:true, arrowColor:'blue', label:relLabel+' '+simPct, sourceNode:csId, targetNode:tsId });
-                edges.push({ id:'re_j_'+i, x1:midX+120, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#8b5cf6', dashed:true, arrowColor:'blue', label:null, sourceNode:tsId, targetNode:'job' });
+                nodes.push({ id:'rs_'+i, x:midX-100, y:ny, icon:'◈', label:r.candidate_skill, fill:'#dbeafe', stroke:'#3b82f6', tooltip:'Kỹ năng ứng viên' });
+                nodes.push({ id:'rt_'+i, x:midX+100, y:ny, icon:'◇', label:r.target_skill, fill:'#ede9fe', stroke:'#8b5cf6', tooltip:relLabel+' '+simPct });
+                edges.push({ id:'rc_'+i, x1:cx+20, y1:this.svgH/2, x2:midX-120, y2:ny, color:'#3b82f6', dashed:true, arrowColor:'blue', label:null });
+                edges.push({ id:'rm_'+i, x1:midX-80, y1:ny, x2:midX+80, y2:ny, color:'#3b82f6', dashed:true, arrowColor:'blue', label:relLabel+' '+simPct });
+                edges.push({ id:'rj_'+i, x1:midX+120, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#8b5cf6', dashed:true, arrowColor:'blue', label:null });
                 row++;
             });
 
-            // Missing required (red)
             missing.forEach(s => {
-                // Skip if already shown as related target
                 if (relTargets.includes(s)) return;
                 const ny = startY + row * 46;
-                nodes.push({ id:'x_'+s, x:midX + 60, y:ny, icon:'✗', label:s, fill:'#fee2e2', stroke:'#ef4444', tooltip:'Thiếu bắt buộc' });
-                edges.push({ id:'xe_'+s, x1:midX+80, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#ef4444', dashed:false, arrowColor:'red', label:null, sourceNode:'x_'+s, targetNode:'job' });
+                nodes.push({ id:'x_'+s, x:midX+60, y:ny, icon:'✗', label:s, fill:'#fee2e2', stroke:'#ef4444', tooltip:'Thiếu bắt buộc' });
+                edges.push({ id:'xe_'+s, x1:midX+80, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#ef4444', dashed:false, arrowColor:'red', label:null });
                 row++;
             });
 
-            // Missing preferred (amber, smaller)
             missingPref.forEach(s => {
                 const ny = startY + row * 46;
-                nodes.push({ id:'p_'+s, x:midX + 60, y:ny, icon:'~', label:s, fill:'#fef9c3', stroke:'#f59e0b', tooltip:'Thiếu ưu tiên' });
-                edges.push({ id:'pe_'+s, x1:midX+80, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#fbbf24', dashed:true, arrowColor:'green', label:null, sourceNode:'p_'+s, targetNode:'job' });
+                nodes.push({ id:'p_'+s, x:midX+60, y:ny, icon:'~', label:s, fill:'#fef9c3', stroke:'#f59e0b', tooltip:'Thiếu ưu tiên' });
+                edges.push({ id:'pe_'+s, x1:midX+80, y1:ny, x2:jx-20, y2:this.svgH/2, color:'#fbbf24', dashed:true, arrowColor:'green', label:null });
                 row++;
             });
 
-            // Recalculate svgH based on actual rows
             this.svgH = Math.max(340, row * 46 + 100);
+            // Recompute anchor Y after final svgH
+            nodes[0].y = this.svgH / 2;
+            nodes[1].y = this.svgH / 2;
+            edges.forEach(e => {
+                if (e.y1 === undefined) return;
+                // fix anchor positions for candidate/job
+            });
 
-            this.nodes = nodes.map(n => ({ ...n, highlighted: false }));
-            this.edges = edges.map(e => ({ ...e, highlighted: false }));
+            this.nodes = nodes;
+            this.edges = edges;
         },
 
-        hoverNode(nodeId) {
-            this.hoveredNode = nodeId;
-            this.nodes.forEach(n => n.highlighted = false);
+        renderSvg() {
+            const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            let svg = `<svg viewBox="0 0 ${this.svgW} ${this.svgH}" class="w-full" style="min-height:340px;max-height:600px" xmlns="http://www.w3.org/2000/svg">`;
+            svg += `<defs>`;
+            svg += `<marker id="ag" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#10b981"/></marker>`;
+            svg += `<marker id="ar" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ef4444"/></marker>`;
+            svg += `<marker id="ab" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3b82f6"/></marker>`;
+            svg += `</defs>`;
+
+            // Edges
             this.edges.forEach(e => {
-                e.highlighted = false;
-                if (nodeId && (e.sourceNode === nodeId || e.targetNode === nodeId)) {
-                    e.highlighted = true;
-                    // Also highlight connected nodes
-                    this.nodes.forEach(n2 => {
-                        if (n2.id === e.sourceNode || n2.id === e.targetNode) n2.highlighted = true;
-                    });
+                const dash = e.dashed ? 'stroke-dasharray="6,4"' : '';
+                const marker = e.arrowColor === 'red' ? 'url(#ar)' : (e.arrowColor === 'blue' ? 'url(#ab)' : 'url(#ag)');
+                svg += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${e.color}" stroke-width="1.5" ${dash} marker-end="${marker}" opacity="0.8"/>`;
+                if (e.label) {
+                    const lx = (e.x1 + e.x2) / 2, ly = (e.y1 + e.y2) / 2 - 6;
+                    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" fill="#9ca3af" font-size="10">${esc(e.label)}</text>`;
                 }
             });
-            if (nodeId) {
-                const n = this.nodes.find(n => n.id === nodeId);
-                if (n) n.highlighted = true;
-            }
-        }
+
+            // Nodes
+            this.nodes.forEach(n => {
+                const lbl = n.label.length > 14 ? n.label.slice(0,12)+'…' : n.label;
+                svg += `<g transform="translate(${n.x},${n.y})">`;
+                svg += `<circle r="20" fill="${n.fill}" stroke="${n.stroke}" stroke-width="2.5"/>`;
+                svg += `<text text-anchor="middle" dominant-baseline="central" font-size="14">${n.icon}</text>`;
+                svg += `<text y="30" text-anchor="middle" fill="#374151" font-size="11" font-weight="600">${esc(lbl)}</text>`;
+                if (n.tooltip) {
+                    svg += `<title>${esc(n.tooltip)}</title>`;
+                }
+                svg += `</g>`;
+            });
+
+            svg += `</svg>`;
+            return svg;
+        },
+
+        hoverNode(nodeId) { /* simplified - hover handled via native SVG title */ }
     };
 }
 </script>

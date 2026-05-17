@@ -10,7 +10,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@
             <div class="text-sm text-gray-600">Tổng đơn</div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@
             <div class="text-sm text-gray-600">Chờ xét</div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@
             <div class="text-sm text-gray-600">Đang xét</div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
             <div class="text-sm text-gray-600">Phỏng vấn</div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@
             <div class="text-sm text-gray-600">Đã nhận</div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+        <div class="glass-card rounded-2xl p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
                     <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +86,7 @@
 
     <div class="grid lg:grid-cols-3 gap-6 mb-8">
         <!-- Recent Applications -->
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="lg:col-span-2 glass-panel rounded-2xl p-6">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-gray-900">Đơn ứng tuyển gần đây</h2>
                 <a href="{{ route('candidate.applications') }}" class="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center gap-1">
@@ -158,7 +158,7 @@
         </div>
 
         <!-- Upcoming Interviews -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="glass-panel rounded-2xl p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Lịch phỏng vấn sắp tới</h2>
             
             @if($upcomingInterviews->isEmpty())
@@ -213,7 +213,7 @@
     </div>
 
     <!-- Recommended Jobs -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="glass-panel rounded-2xl p-6">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-gray-900">Việc làm đề xuất cho bạn</h2>
             <a href="{{ route('home') }}" class="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center gap-1">

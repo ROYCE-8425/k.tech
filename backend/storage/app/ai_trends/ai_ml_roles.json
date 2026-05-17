@@ -1,0 +1,17 @@
+{
+  "domain": "AI/ML Engineering",
+  "current_trends": [
+    "Sự bùng nổ của LLM (Large Language Models) và RAG (Retrieval-Augmented Generation)",
+    "Chuyển dịch từ train model từ đầu sang fine-tuning và prompt engineering",
+    "MLOps (MLflow, Kubeflow) trở thành kỹ năng bắt buộc cho Senior",
+    "Tối ưu hóa inference (TensorRT, vLLM) đang rất được săn đón"
+  ],
+  "risk_patterns": [
+    "Chỉ biết gọi API OpenAI mà không hiểu rõ cơ chế RAG hoặc vector database",
+    "Thiếu kỹ năng Software Engineering (clean code, git, API design)"
+  ],
+  "seniority_expectations": {
+    "mid": "Có khả năng xây dựng pipeline data, train và evaluate model độc lập.",
+    "senior": "Thiết kế hệ thống MLOps, tối ưu chi phí inference, research & implementation."
+  }
+}
