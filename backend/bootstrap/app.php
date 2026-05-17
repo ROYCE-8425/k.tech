@@ -63,6 +63,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
         });
     })->create();
 
-$app->usePublicPath(dirname(__DIR__, 2));
+if (str_starts_with(__DIR__, '/var/www/html')) {
+    $app->usePublicPath(dirname(__DIR__) . '/public');
+} else {
+    $app->usePublicPath(dirname(__DIR__, 2));
+}
 
 return $app;
