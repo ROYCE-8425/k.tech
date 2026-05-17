@@ -44,7 +44,7 @@ services:
       LOG_LEVEL: debug
       IT_SOLO_LEVELING_SIGNATURE: IT_SOLO_LEVELING_TEAM_SECRET_SEAL_CHANGE_ME
     ports:
-      - "8000:8000"
+      - "80:8000"
       - "5173:5173"
     volumes:
       - ./backend:/var/www/html
