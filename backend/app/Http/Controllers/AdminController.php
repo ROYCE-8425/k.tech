@@ -1284,8 +1284,8 @@ class AdminController extends Controller
             : (object) [];
 
         $scoringConfigRaw = $job->scoring_config;
-        $scoringConfig = (is_array($scoringConfigRaw) && !Arr::isList($scoringConfigRaw))
-            ? $scoringConfigRaw
+        $scoringConfig = (is_array($scoringConfigRaw) && !Arr::isList($scoringConfigRaw) && !empty($scoringConfigRaw))
+            ? (object) $scoringConfigRaw
             : null;
 
         return [

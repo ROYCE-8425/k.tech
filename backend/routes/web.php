@@ -20,6 +20,20 @@ Route::get('/lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
+Route::get('/', function () {
+    return redirect()->route('home');
+});
+
+// TEMPORARY DEBUG ROUTE
+Route::get('/debug/logs', function () {
+    $logFile = storage_path('logs/laravel.log');
+    if (!file_exists($logFile)) return 'No log file';
+    
+    // Read last 100 lines
+    $lines = file($logFile);
+    return response()->json(array_slice($lines, -100));
+});
+
 // Demo routes — active only when DEMO_MODE=true (gated inside controller)
 Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
 Route::post('/demo/enter-candidate', [DemoController::class, 'enterAsCandidate'])->name('demo.enter-candidate');
