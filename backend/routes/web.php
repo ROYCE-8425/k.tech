@@ -12,6 +12,14 @@ use App\Http\Controllers\TwoFactorController;
 use App\Http\Middleware\EnsureRecruiterHasCompany;
 use App\Http\Middleware\RoleMiddleware;
 
+// Language Switcher Route
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'vi', 'ko'])) {
+        session()->put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 // Demo routes — active only when DEMO_MODE=true (gated inside controller)
 Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
 Route::post('/demo/enter-candidate', [DemoController::class, 'enterAsCandidate'])->name('demo.enter-candidate');
@@ -92,6 +100,10 @@ Route::middleware([RoleMiddleware::class . ':recruiter,admin', EnsureRecruiterHa
     Route::get('/jobs/{id}/applications', [AdminController::class, 'jobApplications'])->name('admin.jobs.applications');
     Route::post('/jobs/{id}/recalculate', [AdminController::class, 'recalculateScores'])->name('admin.jobs.recalculate');
     
+    // Bulk Upload CVs
+    Route::post('/jobs/{id}/bulk-upload', [\App\Http\Controllers\BulkUploadController::class, 'store'])->name('admin.jobs.bulk-upload');
+    Route::get('/bulk-upload/{batchId}/status', [\App\Http\Controllers\BulkUploadController::class, 'status'])->name('admin.bulk-upload.status');
+    
     // Application actions
     Route::get('/applications/{id}/download-cv', [AdminController::class, 'downloadCV'])->name('admin.applications.download-cv');
     Route::get('/applications/{id}/download-cv-proof/{index}', [AdminController::class, 'downloadCvProof'])->whereNumber('index')->name('admin.applications.download-cv-proof');
@@ -107,10 +119,16 @@ Route::middleware([RoleMiddleware::class . ':recruiter,admin', EnsureRecruiterHa
     Route::get('/jobs/{id}/ai-shortlist', [AdminController::class, 'aiShortlist'])->name('admin.jobs.ai-shortlist');
     Route::get('/applications/{id}/ai-xray', [AdminController::class, 'aiXray'])->name('admin.applications.ai-xray');
     Route::post('/applications/{id}/ai-refresh', [AdminController::class, 'refreshAiMatch'])->name('admin.applications.ai-refresh');
+    Route::post('/jobs/{id}/ai-refresh-selected', [AdminController::class, 'refreshAiMatchSelected'])->name('admin.jobs.ai-refresh-selected');
     Route::post('/applications/{id}/ai-feedback', [AdminController::class, 'storeAiFeedback'])->name('admin.applications.ai-feedback');
 
     // Phase 19: AI Decision Lab
     Route::get('/applications/{id}/ai-decision-lab', [AdminController::class, 'aiDecisionLab'])->name('admin.applications.ai-decision-lab');
+
+    // AI Evaluation Dashboard
+    Route::get('/ai/evaluation', [\App\Http\Controllers\AIEvaluationController::class, 'index'])->name('admin.ai-evaluation');
+    Route::post('/ai/evaluation/run', [\App\Http\Controllers\AIEvaluationController::class, 'triggerRun'])->name('admin.ai-evaluation.run');
+    Route::get('/ai/evaluation/status/{runId?}', [\App\Http\Controllers\AIEvaluationController::class, 'status'])->name('admin.ai-evaluation.status');
 
     // Phase 7: JD Quality Checker
     Route::post('/jobs/check-quality', [AdminController::class, 'checkJdQuality'])->name('admin.jobs.check-quality');

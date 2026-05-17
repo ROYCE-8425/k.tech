@@ -7,6 +7,7 @@ use Illuminate\Session\TokenMismatchException;
 use Illuminate\Auth\AuthenticationException;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwoFactorMiddleware;
+use App\Http\Middleware\LocaleMiddleware;
 
 // This project runs with the webroot at the repository root (cpanel_public_html)
 // and the Laravel app in the "core" subfolder. Set the public path explicitly.
@@ -19,6 +20,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
+        $middleware->web(append: [
+            LocaleMiddleware::class,
+        ]);
         
         // Register 2FA middleware alias for use in routes
         $middleware->alias([

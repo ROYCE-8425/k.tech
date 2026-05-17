@@ -16,10 +16,26 @@
         .glass-card:hover { background: rgba(255, 255, 255, 0.8); transform: translateY(-2px); }
         .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255, 255, 255, 0.6); }
         
+        ::selection { background-color: rgba(99, 102, 241, 0.2); color: inherit; }
+        ::-moz-selection { background-color: rgba(99, 102, 241, 0.2); color: inherit; }
+
+        /* Force Premium Typography System-Wide */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
         .btn-primary {
             background: linear-gradient(135deg, #1856FF 0%, #3A344E 100%);
             transition: all 0.3s ease;
         }
+
+        /* Bulletproof Gradients for UI Elements to avoid Tailwind CDN vs Vite Variable Clashes */
+        .bg-gradient-brand { background: linear-gradient(135deg, #1856FF 0%, #3A344E 100%); }
+        .bg-gradient-emerald { background: linear-gradient(135deg, #34d399 0%, #0d9488 100%); color: white; }
+        .bg-gradient-indigo { background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); color: white; }
+        .bg-gradient-amber { background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%); color: white; }
+        .bg-gradient-red { background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%); color: white; }
+        .bg-gradient-gray { background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); color: white; }
+        .text-gradient-primary { background: linear-gradient(to right, #4338ca, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(24, 86, 255, 0.4); }
         .shine { position: relative; overflow: hidden; }
         .shine::before {
@@ -40,43 +56,56 @@
 <body class="font-sans antialiased text-[#141414] bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#e0e7ff] min-h-screen">
     
     <?php if(config('app.demo_mode')): ?>
-    <div class="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur-xl border-b border-white/5 text-white" id="demo-banner">
-        <div class="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-2.5">
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-bold tracking-wide">
-                    <span class="relative flex h-1.5 w-1.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-400"></span></span>
-                    DEMO
+    <div class="fixed top-0 left-0 right-0 z-[60] bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg text-white" id="demo-banner">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 font-bold tracking-wide text-xs border border-indigo-500/30">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-400"></span>
+                    </span>
+                    DEMO MODE
                 </span>
                 <?php if(auth()->guard()->check()): ?>
-                    <span class="text-slate-400">
-                        <?php echo e(Auth::user()->role === 'candidate' ? '👤 Ứng viên' : '🏢 Nhà tuyển dụng'); ?>:
-                        <strong class="text-white/80"><?php echo e(Auth::user()->name); ?></strong>
+                    <span class="text-slate-300 flex items-center gap-3">
+                        <span class="w-px h-4 bg-white/20 hidden sm:block"></span>
+                        <span class="font-medium hidden sm:inline-block">
+                            <?php if(Auth::user()->role === 'candidate'): ?>
+                                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Ứng viên
+                            <?php else: ?>
+                                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> Nhà tuyển dụng
+                            <?php endif; ?>:
+                            <strong class="text-white ml-1"><?php echo e(Auth::user()->name); ?></strong>
+                        </span>
                     </span>
                 <?php endif; ?>
             </div>
-            <div class="flex items-center gap-1.5">
-                <a href="<?php echo e(route('demo.landing')); ?>" class="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white font-medium transition-all text-xs">
-                    🏠 Demo Home
+            <div class="flex items-center gap-2">
+                <a href="<?php echo e(route('demo.landing')); ?>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-medium transition-all border border-transparent hover:border-white/10 flex items-center gap-1.5 text-xs sm:text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="hidden sm:inline">Trang Demo</span>
                 </a>
                 <?php if(auth()->guard()->check()): ?>
                     <?php if(Auth::user()->role !== 'candidate'): ?>
                         <form action="<?php echo e(route('demo.enter-candidate')); ?>" method="POST" class="inline">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-2.5 py-1 rounded-md bg-white/5 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-300 font-medium transition-all text-xs">
-                                → Ứng viên
+                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-indigo-200 font-medium transition-all border border-indigo-500/20 hover:border-indigo-500/40 flex items-center gap-1.5 text-xs sm:text-sm">
+                                <span class="hidden sm:inline">Sang</span> Ứng viên 
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
                         </form>
                     <?php endif; ?>
                     <?php if(Auth::user()->role !== 'recruiter'): ?>
                         <form action="<?php echo e(route('demo.enter-recruiter')); ?>" method="POST" class="inline">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="px-2.5 py-1 rounded-md bg-white/5 hover:bg-purple-500/20 text-slate-400 hover:text-purple-300 font-medium transition-all text-xs">
-                                → Tuyển dụng
+                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200 font-medium transition-all border border-purple-500/20 hover:border-purple-500/40 flex items-center gap-1.5 text-xs sm:text-sm">
+                                <span class="hidden sm:inline">Sang</span> Tuyển dụng
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
                         </form>
                     <?php endif; ?>
                 <?php else: ?>
-                    <a href="<?php echo e(route('demo.landing')); ?>" class="px-2.5 py-1 rounded-md bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-medium transition-all text-xs">
+                    <a href="<?php echo e(route('demo.landing')); ?>" class="px-3 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-medium transition-all text-xs sm:text-sm border border-indigo-500/30">
                         Chọn vai trò
                     </a>
                 <?php endif; ?>
@@ -86,12 +115,12 @@
     <?php endif; ?>
 
     
-    <nav class="fixed left-0 right-0 z-50 glass-header <?php echo e(config('app.demo_mode') ? 'top-7' : 'top-0'); ?>">
+    <nav class="fixed left-0 right-0 z-50 glass-header <?php echo e(config('app.demo_mode') ? 'top-[49px]' : 'top-0'); ?>">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 
                 <a href="<?php echo e(route('home')); ?>" class="flex items-center space-x-2.5 group">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1856FF] to-[#3A344E] flex items-center justify-center shadow-lg">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center shadow-lg">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
@@ -105,20 +134,24 @@
                 
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="<?php echo e(route('home')); ?>" class="px-4 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 font-medium text-sm transition-all">
-                        Việc làm
+                        <?php echo e(__('Việc làm')); ?>
+
                     </a>
 
                     <?php if(auth()->guard()->check()): ?>
                         <?php if(Auth::user()->role === 'candidate'): ?>
                             <a href="<?php echo e(route('candidate.applications')); ?>" class="px-4 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 font-medium text-sm transition-all">
-                                Đơn đã nộp
+                                <?php echo e(__('Đơn đã nộp')); ?>
+
                             </a>
                         <?php else: ?>
                             <a href="<?php echo e(route('admin.dashboard')); ?>" class="px-4 py-2 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 font-medium text-sm transition-all">
-                                Dashboard
+                                <?php echo e(__('Dashboard')); ?>
+
                             </a>
                             <a href="<?php echo e(route('admin.jobs.create')); ?>" class="px-4 py-2 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 font-medium text-sm transition-all">
-                                + Đăng tuyển
+                                + <?php echo e(__('Đăng tuyển')); ?>
+
                             </a>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -126,6 +159,24 @@
 
                 
                 <div class="flex items-center space-x-3">
+                    
+                    <div class="relative" x-data="{ langOpen: false }">
+                        <button @click="langOpen = !langOpen" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200 shadow-sm hover:border-indigo-300 hover:bg-white hover:text-indigo-700 hover:shadow transition-all font-bold text-sm text-gray-800">
+                            <?php $currentLocale = session('locale', 'en'); ?>
+                            <?php if($currentLocale === 'vi'): ?> <span class="text-base">🇻🇳</span> <span>VI</span>
+                            <?php elseif($currentLocale === 'ko'): ?> <span class="text-base">🇰🇷</span> <span>KO</span>
+                            <?php else: ?> <span class="text-base">🇺🇸</span> <span>EN</span> <?php endif; ?>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="langOpen" @click.away="langOpen = false" x-transition 
+                             class="absolute right-0 mt-2 w-32 py-1.5 bg-white rounded-xl shadow-xl border border-gray-100 text-sm z-50">
+                            <a href="<?php echo e(route('lang.switch', 'en')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">🇺🇸 English</a>
+                            <a href="<?php echo e(route('lang.switch', 'vi')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">🇻🇳 Tiếng Việt</a>
+                            <a href="<?php echo e(route('lang.switch', 'ko')); ?>" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">🇰🇷 한국어</a>
+                        </div>
+                    </div>
                     <?php if(auth()->guard()->check()): ?>
                         
                         <div class="relative" x-data="{ open: false }">
@@ -137,8 +188,10 @@
                                 <div class="hidden sm:block text-left">
                                     <p class="text-sm font-semibold text-gray-800 leading-tight"><?php echo e(Auth::user()->name); ?></p>
                                     <p class="text-[10px] text-gray-400">
-                                        <?php if(Auth::user()->role === 'candidate'): ?> Ứng viên
-                                        <?php else: ?> Nhà tuyển dụng
+                                        <?php if(Auth::user()->role === 'candidate'): ?> <?php echo e(__('Ứng viên')); ?>
+
+                                        <?php else: ?> <?php echo e(__('Nhà tuyển dụng')); ?>
+
                                         <?php endif; ?>
                                     </p>
                                 </div>
@@ -147,16 +200,16 @@
 
                             <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-48 py-1.5 bg-white rounded-xl shadow-xl border border-gray-100 text-sm">
                                 <?php if(Auth::user()->role === 'candidate'): ?>
-                                    <a href="<?php echo e(route('candidate.applications')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Đơn đã nộp</a>
+                                    <a href="<?php echo e(route('candidate.applications')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"><?php echo e(__('Đơn đã nộp')); ?></a>
                                 <?php else: ?>
-                                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">Dashboard</a>
-                                    <a href="<?php echo e(route('admin.jobs.create')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600">Đăng tuyển mới</a>
+                                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600"><?php echo e(__('Dashboard')); ?></a>
+                                    <a href="<?php echo e(route('admin.jobs.create')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600"><?php echo e(__('Đăng tuyển')); ?></a>
                                 <?php endif; ?>
                                 <hr class="my-1.5 border-gray-100">
-                                <a href="<?php echo e(route('account.settings')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">Cài đặt</a>
+                                <a href="<?php echo e(route('account.settings')); ?>" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50"><?php echo e(__('Cài đặt')); ?></a>
                                 <form action="<?php echo e(route('logout')); ?>" method="POST">
                                     <?php echo csrf_field(); ?>
-                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50">Đăng xuất</button>
+                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50"><?php echo e(__('Đăng xuất')); ?></button>
                                 </form>
                             </div>
                         </div>
@@ -166,8 +219,8 @@
                                 🧪 Trải nghiệm Demo
                             </a>
                         <?php else: ?>
-                            <a href="<?php echo e(route('login')); ?>" class="px-4 py-2 rounded-xl text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-semibold transition-all text-sm">Đăng nhập</a>
-                            <a href="<?php echo e(route('register')); ?>" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold text-white shadow-lg hover:shadow-xl transition-all btn-primary shine text-sm">Đăng ký</a>
+                            <a href="<?php echo e(route('login')); ?>" class="px-4 py-2 rounded-xl text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-semibold transition-all text-sm"><?php echo e(__('Đăng nhập')); ?></a>
+                            <a href="<?php echo e(route('register')); ?>" class="inline-flex items-center px-5 py-2.5 rounded-xl font-bold text-white shadow-lg hover:shadow-xl transition-all btn-primary shine text-sm"><?php echo e(__('Đăng ký')); ?></a>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

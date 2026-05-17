@@ -16,7 +16,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
             </div>
-            <span class="font-medium">Quay lại Dashboard</span>
+            <span class="font-medium"><?php echo e(__('Quay lại Dashboard')); ?></span>
         </a>
 
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -36,7 +36,8 @@
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <?php echo e(count($shortlist)); ?> ứng viên được xếp hạng
+                        <?php echo e(count($shortlist)); ?> <?php echo e(__('ứng viên được xếp hạng')); ?>
+
                     </span>
                 </div>
             </div>
@@ -49,30 +50,30 @@
             <span class="text-gray-500 font-medium">AI Fit Score:</span>
             <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
-                <span class="text-gray-600">Phù hợp cao (≥80)</span>
+                <span class="text-gray-600"><?php echo e(__('Phù hợp cao (≥80)')); ?></span>
             </div>
             <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
-                <span class="text-gray-600">Phù hợp vừa (60–79)</span>
+                <span class="text-gray-600"><?php echo e(__('Phù hợp vừa (60–79)')); ?></span>
             </div>
             <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                <span class="text-gray-600">Phù hợp thấp (&lt;60)</span>
+                <span class="text-gray-600"><?php echo e(__('Phù hợp thấp (<60)')); ?></span>
             </div>
             <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-gray-300 mr-2"></span>
-                <span class="text-gray-600">Lỗi / Chưa có</span>
+                <span class="text-gray-600"><?php echo e(__('Lỗi / Chưa có')); ?></span>
             </div>
             <div class="flex items-center border-l border-gray-300 pl-4 ml-2">
                 <span class="inline-block w-3 h-3 rounded-full bg-violet-200 border-2 border-violet-400 mr-2"></span>
-                <span class="text-gray-600">Mới tính</span>
+                <span class="text-gray-600"><?php echo e(__('Mới tính')); ?></span>
             </div>
             <div class="flex items-center">
                 <span class="inline-block w-3 h-3 rounded-full bg-orange-200 border-2 border-orange-400 mr-2"></span>
-                <span class="text-gray-600">Cũ (>7 ngày)</span>
+                <span class="text-gray-600"><?php echo e(__('Cũ (>7 ngày)')); ?></span>
             </div>
             <div class="flex items-center border-l border-gray-300 pl-4 ml-2">
-                <span class="text-gray-500 font-medium">💬 Phản hồi:</span>
+                <span class="text-gray-500 font-medium">💬 <?php echo e(__('Phản hồi:')); ?></span>
             </div>
             <div class="flex items-center gap-1.5">
                 <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-[10px]">✅</span>
@@ -138,6 +139,41 @@
         </div>
     <?php endif; ?>
 
+    <?php if(count($shortlist) > 0): ?>
+        <div class="glass-panel rounded-2xl p-4 mb-4">
+            <div class="flex flex-col md:flex-row md:items-center gap-3 md:justify-between">
+                <div class="flex items-center gap-3">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 font-medium">
+                        <input id="ai-refresh-select-all" type="checkbox" class="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                               onclick="toggleAllAiRefresh(this)">
+                        <?php echo e(__('Chọn tất cả')); ?>
+
+                    </label>
+                    <span class="text-sm text-gray-500">
+                        <?php echo e(__('Đã chọn:')); ?> <span id="ai-refresh-selected-count" class="font-semibold text-violet-700">0</span>
+                    </span>
+                </div>
+                <button type="submit"
+                        form="ai-refresh-selected-form"
+                        class="relative z-30 pointer-events-auto inline-flex items-center px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <?php echo e(__('Tính lại AI hồ sơ đã chọn')); ?>
+
+                </button>
+            </div>
+        </div>
+
+        <form id="ai-refresh-selected-form"
+              action="<?php echo e(route('admin.jobs.ai-refresh-selected', $job->id)); ?>"
+              method="POST"
+              class="hidden"
+              onsubmit="return validateBulkAiRefreshSelection(event)">
+            <?php echo csrf_field(); ?>
+        </form>
+    <?php endif; ?>
+
     <!-- Shortlist -->
     <?php if(count($shortlist) > 0): ?>
         <div class="space-y-4">
@@ -146,10 +182,10 @@
                     $score = $item['fit_score'];
                     $scoreColor = $score === null ? 'gray' : ($score >= 80 ? 'emerald' : ($score >= 60 ? 'amber' : 'red'));
                     $scoreBg = [
-                        'gray' => 'from-gray-400 to-gray-500',
-                        'emerald' => 'from-emerald-400 to-teal-500',
-                        'amber' => 'from-amber-400 to-orange-500',
-                        'red' => 'from-red-400 to-pink-500',
+                        'gray' => 'bg-gradient-gray',
+                        'emerald' => 'bg-gradient-emerald',
+                        'amber' => 'bg-gradient-amber',
+                        'red' => 'bg-gradient-red',
                     ][$scoreColor];
 
                     $rankLabels = [
@@ -173,23 +209,29 @@
                      x-data="{ expanded: <?php echo e($index === 0 ? 'true' : 'false'); ?> }">
 
                     <!-- Main Row -->
-                    <div class="flex flex-col md:flex-row md:items-center p-5 gap-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                    <div class="flex flex-col md:flex-row md:items-center p-5 gap-4 cursor-pointer hover:bg-gray-50/50 transition-colors select-none"
                          @click="expanded = !expanded">
 
                         <!-- Rank # + Avatar -->
                         <div class="flex items-center gap-4 min-w-0">
-                            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br <?php echo e($scoreBg); ?> flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            <input type="checkbox"
+                                   class="ai-refresh-checkbox rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                                   name="application_ids[]"
+                                   form="ai-refresh-selected-form"
+                                   value="<?php echo e($item['application_id']); ?>"
+                                   onclick="event.stopPropagation(); updateAiRefreshSelectionCount();">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-xl <?php echo e($scoreBg); ?> flex items-center justify-center font-bold text-lg shadow-md">
                                 <?php echo e($index + 1); ?>
 
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                                <span class="text-lg font-bold text-indigo-600">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-indigo flex items-center justify-center shadow-inner">
+                                <span class="text-lg font-bold text-white">
                                     <?php echo e(strtoupper(substr($item['candidate_name'], 0, 2))); ?>
 
                                 </span>
                             </div>
                             <div class="min-w-0">
-                                <h3 class="font-bold text-gray-900 truncate"><?php echo e($item['candidate_name']); ?></h3>
+                                <h3 class="font-extrabold text-gradient-primary truncate text-lg"><?php echo e($item['candidate_name']); ?></h3>
                                 <div class="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                                     <?php if($item['fresh']): ?>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-medium">Mới tính</span>
@@ -230,10 +272,10 @@
                                 <?php echo e($conf['label']); ?>
 
                             </span>
-                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br <?php echo e($scoreBg); ?> flex flex-col items-center justify-center text-white shadow-md">
+                            <div class="w-16 h-16 rounded-2xl <?php echo e($scoreBg); ?> flex flex-col items-center justify-center shadow-md">
                                 <?php if($score !== null): ?>
                                     <span class="text-xl font-bold"><?php echo e(number_format($score, 0)); ?></span>
-                                    <span class="text-[10px] opacity-80">điểm</span>
+                                    <span class="text-[10px] opacity-80 text-white">điểm</span>
                                 <?php else: ?>
                                     <span class="text-lg font-bold">--</span>
                                 <?php endif; ?>
@@ -381,13 +423,14 @@
                                         <?php endif; ?>
 
                                         <form action="<?php echo e(route('admin.applications.ai-refresh', $item['application_id'])); ?>" method="POST"
-                                              onsubmit="return confirm('Tính lại kết quả AI cho ứng viên này?')">
+                                              onsubmit="return handleAiRefresh(this, 'Tính lại kết quả AI cho ứng viên này?')">
                                             <?php echo csrf_field(); ?>
-                                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
+                                            <button type="submit" class="relative z-30 pointer-events-auto inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
                                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                                 </svg>
-                                                Tính lại AI
+                                                <?php echo e(__('Tính lại AI')); ?>
+
                                             </button>
                                         </form>
                                     </div>
@@ -473,7 +516,7 @@
                                     <div x-show="showNote" x-transition class="mt-3">
                                         <div class="flex gap-2">
                                             <input type="text" x-model="fbNote" maxlength="500" placeholder="VD: Score chưa thuyết phục, cần phỏng vấn thêm..."
-                                                   class="flex-1 px-3 py-2 text-sm border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-all">
+                                                   class="flex-1 px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all shadow-sm">
                                             <button @click="sendFeedback('note', fbNote)" :disabled="saving || !fbNote.trim()"
                                                     class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-all whitespace-nowrap">
                                                 Lưu
@@ -481,10 +524,10 @@
                                         </div>
                                         
                                         <div class="flex flex-wrap gap-1.5 mt-2">
-                                            <button type="button" @click="fbNote = 'Thiếu dữ liệu CV'" class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-[11px] font-medium hover:bg-gray-200 transition-all">Thiếu dữ liệu</button>
-                                            <button type="button" @click="fbNote = 'Score chưa thuyết phục'" class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-[11px] font-medium hover:bg-gray-200 transition-all">Score chưa thuyết phục</button>
-                                            <button type="button" @click="fbNote = 'Cần phỏng vấn kiểm tra thêm'" class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-[11px] font-medium hover:bg-gray-200 transition-all">Cần phỏng vấn thêm</button>
-                                            <button type="button" @click="fbNote = 'Ứng viên tiềm năng'" class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-[11px] font-medium hover:bg-gray-200 transition-all">Ứng viên tiềm năng</button>
+                                            <button type="button" @click="fbNote = 'Thiếu dữ liệu CV'" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-[11px] font-medium hover:bg-indigo-100 transition-all">Thiếu dữ liệu</button>
+                                            <button type="button" @click="fbNote = 'Score chưa thuyết phục'" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-[11px] font-medium hover:bg-indigo-100 transition-all">Score chưa thuyết phục</button>
+                                            <button type="button" @click="fbNote = 'Cần phỏng vấn kiểm tra thêm'" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-[11px] font-medium hover:bg-indigo-100 transition-all">Cần phỏng vấn thêm</button>
+                                            <button type="button" @click="fbNote = 'Ứng viên tiềm năng'" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 text-[11px] font-medium hover:bg-indigo-100 transition-all">Ứng viên tiềm năng</button>
                                         </div>
                                         
                                         <template x-if="fbType === 'note' && fbNote">
@@ -531,7 +574,100 @@
         .animate-fade-in {
             animation: fade-in 0.4s ease-out both;
         }
+        @keyframes slide-x {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+        .animate-slide-x {
+            animation: slide-x 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateY(-8px) rotate(0deg); }
+            to { transform: rotate(360deg) translateY(-8px) rotate(-360deg); }
+        }
+        .animate-orbit {
+            animation: orbit 3s linear infinite;
+        }
     </style>
+
+    <!-- Global AI Loader -->
+    <div id="ai-global-loader" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center bg-gray-900/30 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="bg-white/95 rounded-3xl p-8 flex flex-col items-center shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0 border border-violet-100" id="ai-global-loader-content">
+            <div class="relative w-24 h-24 mb-5 flex items-center justify-center">
+                <div class="absolute inset-0 bg-violet-100 rounded-full animate-pulse opacity-60"></div>
+                <!-- Orbiting stars/sparkles -->
+                <div class="absolute inset-0 flex items-center justify-center animate-spin" style="animation-duration: 4s;">
+                    <span class="text-xl animate-orbit absolute" style="top: 10px;">✨</span>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center animate-spin" style="animation-duration: 4s; animation-direction: reverse;">
+                    <span class="text-xl animate-orbit absolute" style="bottom: 10px;">⚙️</span>
+                </div>
+                <!-- Main Bot -->
+                <div class="relative z-10 text-5xl drop-shadow-md">🤖</div>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Đang phân tích AI...</h3>
+            <p class="text-gray-500 text-center text-sm mb-5 leading-relaxed">
+                Hệ thống đang đọc CV, duyệt Skill Graph và gọi LLM.<br>
+                <span class="text-violet-600 font-medium">Vui lòng không đóng trang.</span>
+            </p>
+            <div class="w-full h-1.5 bg-violet-100 rounded-full overflow-hidden">
+                <div class="h-full bg-violet-500 rounded-full w-1/3 animate-slide-x shadow-[0_0_8px_rgba(139,92,246,0.5)]"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateAiRefreshSelectionCount() {
+            const selected = document.querySelectorAll('.ai-refresh-checkbox:checked').length;
+            const countEl = document.getElementById('ai-refresh-selected-count');
+            if (countEl) countEl.textContent = String(selected);
+        }
+
+        function toggleAllAiRefresh(source) {
+            const checkboxes = document.querySelectorAll('.ai-refresh-checkbox');
+            checkboxes.forEach((cb) => {
+                cb.checked = source.checked;
+            });
+            updateAiRefreshSelectionCount();
+        }
+
+        function validateBulkAiRefreshSelection(event) {
+            const selected = document.querySelectorAll('.ai-refresh-checkbox:checked').length;
+            if (selected === 0) {
+                alert('Vui lòng chọn ít nhất 1 hồ sơ.');
+                return false;
+            }
+            if (confirm(`Tính lại AI cho ${selected} hồ sơ đã chọn?`)) {
+                showGlobalAiLoader();
+                return true;
+            }
+            return false;
+        }
+
+        function handleAiRefresh(form, message) {
+            if (confirm(message)) {
+                showGlobalAiLoader();
+                return true;
+            }
+            return false;
+        }
+
+        function showGlobalAiLoader() {
+            const loader = document.getElementById('ai-global-loader');
+            const content = document.getElementById('ai-global-loader-content');
+            if (loader && content) {
+                loader.classList.remove('hidden');
+                // Small delay to allow display:block to apply before changing opacity
+                requestAnimationFrame(() => {
+                    loader.classList.remove('opacity-0');
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateAiRefreshSelectionCount);
+    </script>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal5863877a5171c196453bfa0bd807e410)): ?>

@@ -4,7 +4,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Welcome Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Xin chào, {{ $candidate->full_name ?? Auth::user()->name }}! 👋</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Xin chào, {{ $candidate->full_name ?? Auth::user()->name }}!</h1>
         <p class="text-gray-600">Quản lý đơn ứng tuyển và theo dõi tiến trình tìm việc của bạn</p>
     </div>
 
@@ -236,7 +236,7 @@
                 @foreach($recommendedJobs as $job)
                     <a href="{{ route('jobs.show', $job->id) }}" class="block border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-indigo-300 transition-all group">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-indigo flex items-center justify-center flex-shrink-0 shadow-md">
                                 <span class="text-white font-bold text-lg">{{ substr($job->company->name, 0, 1) }}</span>
                             </div>
                             <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Mới</span>

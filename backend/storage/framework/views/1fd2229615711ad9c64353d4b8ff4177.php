@@ -8,6 +8,14 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
+    <div
+        x-data="bulkUploadManager({
+            storeUrl: '<?php echo e(route('admin.jobs.bulk-upload', $job->id)); ?>',
+            statusUrlTemplate: '<?php echo e(route('admin.bulk-upload.status', ['batchId' => '__BATCH_ID__'])); ?>',
+            applicationsUrl: '<?php echo e(route('admin.jobs.applications', $job->id)); ?>'
+        })"
+        @open-bulk-upload.window="openModal()"
+    >
     <!-- Header -->
     <div class="mb-10">
         <a href="<?php echo e(route('admin.dashboard')); ?>" class="inline-flex items-center text-gray-500 hover:text-indigo-600 mb-6 group transition-colors">
@@ -49,6 +57,14 @@
 
             <div class="flex items-center space-x-3">
                 
+                <button @click="$dispatch('open-bulk-upload')" class="inline-flex items-center px-5 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-all duration-300 shadow-sm border border-indigo-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    Import CVs
+                </button>
+
+                
                 <a href="<?php echo e(route('admin.jobs.ai-shortlist', $job->id)); ?>" class="inline-flex items-center px-5 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold hover:from-violet-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300" style="background: linear-gradient(to right, #8b5cf6, #9333ea);">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
@@ -76,6 +92,16 @@
                 Nhấn <span class="font-semibold">🤖 AI Shortlist</span> ở trên để xem AI xếp hạng tất cả ứng viên cho vị trí này.
                 Bạn cũng có thể thay đổi trạng thái và thêm ghi chú trên từng ứng viên.
             </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if(!empty($bulkNotice)): ?>
+        <div id="bulk-import-notice" class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm">
+            Import hoan tat: <?php echo e($bulkNotice['processed']); ?>/<?php echo e($bulkNotice['total']); ?> CV da xu ly
+            <?php if(($bulkNotice['failed'] ?? 0) > 0): ?>
+                (loi: <?php echo e($bulkNotice['failed']); ?>)
+            <?php endif; ?>
+            .
         </div>
     <?php endif; ?>
 
@@ -520,6 +546,192 @@
             <p class="text-gray-500 max-w-md mx-auto">Hãy chờ các ứng viên nộp đơn ứng tuyển cho vị trí này. Bạn sẽ nhận được thông báo khi có CV mới.</p>
         </div>
     <?php endif; ?>
+
+    <div
+        x-show="showBulkModal"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="background: rgba(15, 23, 42, 0.55);"
+    >
+        <div class="absolute inset-0" @click="closeModal()"></div>
+        <div class="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Import CV hàng loạt</h3>
+                    <p class="text-sm text-gray-500">Chọn nhiều file PDF/DOC/DOCX để AI xử lý tự động.</p>
+                </div>
+                <button type="button" @click="closeModal()" class="w-9 h-9 rounded-lg hover:bg-gray-100 text-gray-500">✕</button>
+            </div>
+
+            <form class="px-6 py-5 space-y-4" @submit.prevent="submitUpload($event)">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tệp CV</label>
+                    <input
+                        type="file"
+                        name="cv_files[]"
+                        multiple
+                        accept=".pdf,.doc,.docx"
+                        class="w-full px-4 py-3 border-2 border-dashed border-indigo-200 rounded-xl bg-indigo-50/40 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:text-sm"
+                        required
+                    >
+                    <p class="mt-2 text-xs text-gray-500">Tối đa 10MB mỗi file. Định dạng hỗ trợ: PDF, DOC, DOCX.</p>
+                </div>
+
+                <div x-show="uploadError" class="p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700" x-text="uploadError"></div>
+                <div x-show="uploadMessage" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-700" x-text="uploadMessage"></div>
+
+                <template x-if="batchStatus">
+                    <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+                        <div class="flex items-center justify-between text-sm font-semibold text-gray-700 mb-2">
+                            <span>Batch #<span x-text="batchStatus.id"></span></span>
+                            <span class="capitalize" x-text="batchStatus.status"></span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs text-gray-600 mb-3">
+                            <div class="p-2 rounded-lg bg-white border border-gray-200">Tổng: <span class="font-semibold" x-text="batchStatus.total_files"></span></div>
+                            <div class="p-2 rounded-lg bg-white border border-gray-200">Đã xử lý: <span class="font-semibold" x-text="batchStatus.processed_files"></span></div>
+                            <div class="p-2 rounded-lg bg-white border border-gray-200">Lỗi: <span class="font-semibold" x-text="batchStatus.failed_files"></span></div>
+                        </div>
+                        <div class="space-y-1 max-h-40 overflow-y-auto pr-1">
+                            <template x-for="item in batchItems" :key="item.id">
+                                <div class="flex items-center justify-between text-xs bg-white border border-gray-200 rounded-lg px-2 py-1.5">
+                                    <span class="truncate mr-3" x-text="item.filename"></span>
+                                    <span class="font-semibold capitalize" x-text="item.status"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">Đóng</button>
+                    <button
+                        type="submit"
+                        :disabled="isUploading"
+                        class="px-5 py-2 rounded-lg bg-indigo-600 text-white font-semibold disabled:opacity-60 hover:bg-indigo-700"
+                    >
+                        <span x-show="!isUploading">Tải lên & xử lý</span>
+                        <span x-show="isUploading">Đang tải...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        function bulkUploadManager(config) {
+            return {
+                showBulkModal: false,
+                isUploading: false,
+                uploadError: '',
+                uploadMessage: '',
+                batchId: null,
+                batchStatus: null,
+                batchItems: [],
+                pollTimer: null,
+                autoReloadScheduled: false,
+                storeUrl: config.storeUrl,
+                statusUrlTemplate: config.statusUrlTemplate,
+                applicationsUrl: config.applicationsUrl,
+                openModal() {
+                    this.showBulkModal = true;
+                    this.uploadError = '';
+                    this.uploadMessage = '';
+                    this.autoReloadScheduled = false;
+                },
+                closeModal() {
+                    this.showBulkModal = false;
+                    if (this.pollTimer) {
+                        clearInterval(this.pollTimer);
+                        this.pollTimer = null;
+                    }
+                },
+                async submitUpload(event) {
+                    this.uploadError = '';
+                    this.uploadMessage = '';
+                    this.isUploading = true;
+
+                    try {
+                        const formData = new FormData(event.target);
+                        const response = await fetch(this.storeUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                                'Accept': 'application/json',
+                            },
+                            body: formData
+                        });
+
+                        const payload = await response.json();
+                        if (!response.ok || !payload.success) {
+                            const message = payload?.message || 'Upload thất bại. Vui lòng thử lại.';
+                            throw new Error(message);
+                        }
+
+                        this.batchId = payload.batch_id;
+                        this.uploadMessage = payload.message || 'Đã đưa CV vào hàng đợi xử lý.';
+                        this.startPolling();
+                    } catch (error) {
+                        this.uploadError = error.message || 'Không thể upload CV lúc này.';
+                    } finally {
+                        this.isUploading = false;
+                    }
+                },
+                startPolling() {
+                    if (!this.batchId) return;
+                    this.pollBatchStatus();
+                    if (this.pollTimer) clearInterval(this.pollTimer);
+                    this.pollTimer = setInterval(() => this.pollBatchStatus(), 2000);
+                },
+                async pollBatchStatus() {
+                    if (!this.batchId) return;
+                    const url = this.statusUrlTemplate.replace('__BATCH_ID__', this.batchId);
+                    try {
+                        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) return;
+                        const payload = await response.json();
+                        this.batchStatus = payload.batch || null;
+                        this.batchItems = payload.items || [];
+
+                        if (this.batchStatus) {
+                            const done = (this.batchStatus.processed_files + this.batchStatus.failed_files) >= this.batchStatus.total_files;
+                            const completedState = ['completed', 'failed'].includes(String(this.batchStatus.status).toLowerCase());
+                            if (done || completedState) {
+                                this.uploadMessage = 'Batch da hoan tat. He thong se tai lai trang sau 2 giay.';
+                                if (this.pollTimer) {
+                                    clearInterval(this.pollTimer);
+                                    this.pollTimer = null;
+                                }
+                                if (!this.autoReloadScheduled) {
+                                    this.autoReloadScheduled = true;
+                                    setTimeout(() => {
+                                        const nextUrl = new URL(this.applicationsUrl, window.location.origin);
+                                        nextUrl.searchParams.set('bulk_import_done', '1');
+                                        nextUrl.searchParams.set('batch_id', String(this.batchId));
+                                        window.location.href = nextUrl.toString();
+                                    }, 2000);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        // Keep silent during polling; user can still close and retry.
+                    }
+                }
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('bulk_import_done') === '1') {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            }
+        });
+    </script>
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal5863877a5171c196453bfa0bd807e410)): ?>

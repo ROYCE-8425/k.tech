@@ -101,6 +101,10 @@ _RELATED_CREDIT = 0.80
 # This ensures: exact/synonym > one-hop related > two-hop indirect
 _TWO_HOP_RELATED_CREDIT = _RELATED_CREDIT * 0.50  # = 0.40
 
+# Neutral score used when a component is missing but we still keep pipeline stable.
+# Lower than 0.5 to avoid score compression around ~50 when JD/CV data is sparse.
+_NEUTRAL_MISSING_COMPONENT = 0.35
+
 
 @dataclass
 class MatcherAgent:
@@ -166,8 +170,12 @@ class MatcherAgent:
         )
         if n_required > 0:
             req_coverage = min(1.0, (exact_req_credit + related_req_credit) / n_required)
+            req_detail = None
         else:
-            req_coverage = 0.5
+            req_coverage, req_detail, req_flags = self._score_required_without_structured_skills(
+                c_profile, j_profile, job_title,
+            )
+            risk_flags.extend(req_flags)
 
         if n_required > 0 and req_coverage < 0.5:
             missing_pct = int((1 - req_coverage) * 100)
@@ -195,7 +203,8 @@ class MatcherAgent:
         if n_preferred > 0:
             pref_coverage = min(1.0, (exact_pref_credit + related_pref_credit) / n_preferred)
         else:
-            pref_coverage = 0.5
+            # If JD doesn't specify preferred skills, give neutral-high credit so it doesn't drag score down
+            pref_coverage = 0.85
 
         # ── Component 3: Experience fit ──
         exp_score, exp_detail, exp_flags = self._score_experience(c_profile, j_profile)
@@ -209,7 +218,7 @@ class MatcherAgent:
         dom_score, dom_detail = self._score_domain_relevance(c_profile, j_profile, job_title)
 
         # ── Component 6: Confidence adjustment ──
-        conf_map = {"high": 1.0, "medium": 0.7, "low": 0.4}
+        conf_map = {"high": 1.0, "medium": 0.85, "low": 0.60}
         c_conf = conf_map.get(c_profile.extraction_confidence, 0.4)
         j_conf = conf_map.get(j_profile.extraction_confidence, 0.4)
         avg_conf = (c_conf + j_conf) / 2
@@ -222,6 +231,11 @@ class MatcherAgent:
             risk_flags.append(
                 "JD được trích xuất bằng heuristic — độ chính xác có thể thấp hơn"
             )
+        if not c_profile.skills:
+            risk_flags.append(
+                "Không trích xuất được kỹ năng từ CV — cần human review hoặc bổ sung dữ liệu"
+            )
+            avg_conf = max(0.0, avg_conf - 0.15)
 
         # Confidence label — penalize if many matches are indirect
         # Two-hop matches penalize confidence more than one-hop
@@ -256,17 +270,20 @@ class MatcherAgent:
                     weights = {k: v / total_w for k, v in weights.items()}
 
         # ── Build detail strings ──
-        req_detail_parts = [f"{len(matched_required)} exact"]
-        if related_req:
-            req_detail_parts.append(f"{len(related_req)} related")
-        req_detail_parts.append(f"/ {n_required} bắt buộc")
-        req_detail = " + ".join(req_detail_parts) if n_required else "không có yêu cầu kỹ năng"
+        if n_required > 0:
+            req_detail_parts = [f"{len(matched_required)} exact"]
+            if related_req:
+                req_detail_parts.append(f"{len(related_req)} related")
+            req_detail_parts.append(f"/ {n_required} bắt buộc")
+            req_detail = " + ".join(req_detail_parts)
+        else:
+            req_detail = req_detail or "JD thiếu required_skills — dùng fallback theo domain/title"
 
         pref_detail_parts = [f"{len(matched_preferred)} exact"]
         if related_pref:
             pref_detail_parts.append(f"{len(related_pref)} related")
         pref_detail_parts.append(f"/ {n_preferred} ưu tiên")
-        pref_detail = " + ".join(pref_detail_parts) if n_preferred else "không có kỹ năng ưu tiên"
+        pref_detail = " + ".join(pref_detail_parts) if n_preferred else "không có kỹ năng ưu tiên (điểm trung lập thấp)"
 
         scores = {
             "required_skill_coverage": req_coverage,
@@ -339,21 +356,29 @@ class MatcherAgent:
         j_max = j.max_experience_years
 
         if c_exp is None and j_min is None and j_max is None:
-            return 0.5, "không có dữ liệu kinh nghiệm", []
+            return _NEUTRAL_MISSING_COMPONENT, "không có dữ liệu kinh nghiệm", []
 
         if j_min is None and j_max is None:
-            return 0.5, f"ứng viên {c_exp} năm, JD không chỉ định", []
+            if c_exp is None:
+                return _NEUTRAL_MISSING_COMPONENT, "JD không chỉ định kinh nghiệm, CV không rõ", []
+            return 0.55, f"ứng viên {c_exp} năm, JD không chỉ định", []
 
         if c_exp is None:
             range_str = f"{j_min or '?'}-{j_max or '?'} năm"
-            return 0.5, f"kinh nghiệm ứng viên không rõ vs {range_str}", [
+            return 0.3, f"kinh nghiệm ứng viên không rõ vs {range_str}", [
                 f"Kinh nghiệm ứng viên không rõ — không thể đánh giá (yêu cầu {range_str})",
             ]
 
         mid = ((j_min or 0) + (j_max or j_min or 0)) / 2
         spread = max(1.0, ((j_max or mid) - (j_min or mid)) / 2) if (j_max and j_min) else 2.0
 
-        distance = abs(c_exp - mid)
+        # Asymmetric distance: penalize under-qualified more than over-qualified
+        if c_exp < (j_min or mid):
+            distance = (j_min or mid) - c_exp
+        else:
+            # Over-qualified is penalized less (halved distance)
+            distance = (c_exp - (j_max or mid)) * 0.4
+
         score = math.exp(-0.5 * (distance / spread) ** 2)
 
         range_str = f"{j_min or '?'}-{j_max or '?'} năm"
@@ -378,25 +403,25 @@ class MatcherAgent:
 
         if not c_sen or not j_sen:
             if not c_sen and not j_sen:
-                return 0.5, "không có dữ liệu cấp bậc", []
+                return _NEUTRAL_MISSING_COMPONENT, "không có dữ liệu cấp bậc", []
             if not c_sen:
-                return 0.5, "cấp bậc ứng viên không rõ", []
-            return 0.5, "JD không chỉ định cấp bậc", []
+                return 0.4, "cấp bậc ứng viên không rõ", []
+            return 0.4, "JD không chỉ định cấp bậc", []
 
         gap = self._seniority_norm.gap(c_sen, j_sen)
         if gap is None:
-            return 0.5, f"{c_sen} vs {j_sen} (unmapped)", []
+            return _NEUTRAL_MISSING_COMPONENT, f"{c_sen} vs {j_sen} (unmapped)", []
 
         flag_msg = f"Khoảng cách cấp bậc: ứng viên {c_sen}, yêu cầu {j_sen}"
 
         if gap == 0:
             return 1.0, f"cùng cấp bậc {c_sen}", []
         elif gap == 1:
-            return 0.7, f"{c_sen} vs {j_sen} (1 bậc)", [flag_msg]
+            return 0.85, f"{c_sen} vs {j_sen} (1 bậc)", [flag_msg]
         elif gap == 2:
-            return 0.3, f"{c_sen} vs {j_sen} (2 bậc)", [flag_msg]
+            return 0.5, f"{c_sen} vs {j_sen} (2 bậc)", [flag_msg]
         else:
-            return 0.0, f"{c_sen} vs {j_sen} ({gap} bậc)", [flag_msg]
+            return 0.2, f"{c_sen} vs {j_sen} ({gap} bậc)", [flag_msg]
 
     def _score_domain_relevance(
         self, c: CandidateProfile, j: JobProfile, job_title: str = "",
@@ -411,11 +436,57 @@ class MatcherAgent:
         j_kw = {k.lower() for k in j_kw_list}
 
         if not j_kw:
-            return 0.5, "không có domain keywords"
+            return _NEUTRAL_MISSING_COMPONENT, "không có domain keywords"
 
         overlap = c_kw & j_kw
         score = len(overlap) / len(j_kw)
         return round(score, 4), f"{len(overlap)}/{len(j_kw)} keywords"
+
+    def _score_required_without_structured_skills(
+        self,
+        c: CandidateProfile,
+        j: JobProfile,
+        job_title: str,
+    ) -> tuple[float, str, list[str]]:
+        """Fallback required-skill score when JD has no explicit required_skills.
+
+        Uses domain/title inferred related skills to avoid collapsing many candidates
+        into the same mid score. Kept bounded to avoid inflating uncertain JD data.
+        """
+        flags = [
+            "JD thiếu required_skills — điểm kỹ năng bắt buộc đang dùng fallback theo title/domain",
+        ]
+
+        candidate_norm = {
+            s.lower() for s in self._skill_norm.normalize_skills(c.skills or [])
+        }
+
+        inferred: list[str] = []
+        family = self._domain_cls.classify_from_title(job_title) if job_title else None
+        if family:
+            inferred = self._skill_norm.normalize_skills(
+                self._domain_cls.get_related_skills(family)
+            )
+
+        if not inferred and j.domain_keywords:
+            inferred = self._skill_norm.normalize_skills(j.domain_keywords[:10])
+
+        inferred_norm = list({s.lower() for s in inferred if s})
+
+        if inferred_norm:
+            denominator = max(1, min(8, len(inferred_norm)))
+            hit = len(candidate_norm & set(inferred_norm))
+            coverage = hit / denominator
+            # Cap fallback coverage slightly higher to avoid heavily penalizing candidates
+            score = min(0.90, coverage)
+            detail = f"{hit}/{denominator} inferred required skills (title/domain fallback)"
+            return round(score, 4), detail, flags
+
+        # Last-resort proxy: richer technical CV gets more than empty CV
+        skill_count = len(candidate_norm)
+        proxy = min(0.75, skill_count * 0.08)
+        detail = f"no inferred required skills; proxy by candidate skill signals ({skill_count})"
+        return round(proxy, 4), detail, flags
 
 
 @dataclass

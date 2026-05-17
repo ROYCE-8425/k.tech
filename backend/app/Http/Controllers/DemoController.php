@@ -46,7 +46,7 @@ class DemoController extends Controller
         session(['2fa:verified' => true]); // Skip 2FA for demo
 
         return redirect()->route('home')
-            ->with('status', '👋 Chào mừng bạn đến Demo! Hãy chọn một công việc và upload CV để trải nghiệm AI phân tích.');
+            ->with('status', 'Chào mừng bạn đến Demo! Hãy chọn một công việc và upload CV để trải nghiệm AI phân tích.');
     }
 
     /**

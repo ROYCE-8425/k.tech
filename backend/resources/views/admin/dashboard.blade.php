@@ -3,7 +3,7 @@
     <div class="mb-10">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('Dashboard') }}</h1>
                 <p class="text-gray-500 text-lg">Chào mừng trở lại! Đây là tổng quan về hoạt động tuyển dụng của bạn.</p>
             </div>
             <div class="flex flex-wrap gap-3">
@@ -11,7 +11,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2M5 7v14a2 2 0 002 2h10a2 2 0 002-2V7"></path>
                     </svg>
-                    Công ty
+                    {{ __('Công ty') }}
                 </a>
                 <!-- Export Report PDF -->
                 <div x-data="{ showExport: false }" class="relative">
@@ -48,13 +48,13 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    Lịch phỏng vấn
+                    {{ __('Lịch phỏng vấn') }}
                 </a>
                 <a href="{{ route('admin.jobs.create') }}" class="inline-flex items-center px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-indigo-500/30 hover:scale-105 transition-all duration-300 shine" style="background: linear-gradient(to right, #4f46e5, #9333ea);">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Đăng việc mới
+                    {{ __('Đăng tin tuyển dụng') }}
                 </a>
             </div>
         </div>
@@ -89,7 +89,7 @@
                     <span class="text-sm font-medium text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Tổng</span>
                 </div>
                 <h3 class="text-4xl font-bold text-gray-900 mb-1">{{ $jobCount }}</h3>
-                <p class="text-gray-500 font-medium">Việc làm</p>
+                <p class="text-gray-500 font-medium">{{ __('Việc làm') }}</p>
             </div>
         </div>
 
