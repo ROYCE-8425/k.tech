@@ -155,7 +155,8 @@
                 </div>
                 <button type="submit"
                         form="ai-refresh-selected-form"
-                        class="relative z-30 pointer-events-auto inline-flex items-center px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-all duration-200">
+                        style="cursor: pointer; position: relative; z-index: 9999;"
+                        class="inline-flex items-center px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-all duration-200">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
@@ -422,10 +423,10 @@
                                             </a>
                                         <?php endif; ?>
 
-                                        <form action="<?php echo e(route('admin.applications.ai-refresh', $item['application_id'])); ?>" method="POST"
-                                              onsubmit="return handleAiRefresh(this, 'Tính lại kết quả AI cho ứng viên này?')">
+                                        <form action="<?php echo e(route('admin.applications.ai-refresh', $item['application_id'])); ?>" method="POST" class="inline-block"
+                                              onsubmit="if(confirm('Tính lại kết quả AI cho ứng viên này?')){ document.getElementById('ai-global-loader').classList.remove('hidden'); return true; } return false;">
                                             <?php echo csrf_field(); ?>
-                                            <button type="submit" class="relative z-30 pointer-events-auto inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
+                                            <button type="submit" style="cursor: pointer; position: relative; z-index: 9999;" class="inline-flex items-center px-4 py-2 rounded-xl bg-violet-50 text-violet-700 text-sm font-semibold hover:bg-violet-600 hover:text-white transition-all duration-200">
                                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                                 </svg>
