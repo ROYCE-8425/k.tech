@@ -155,7 +155,7 @@ class GeminiProvider(LLMProvider):
         max_tokens: int = 1024,
         timeout: float = 45.0,
     ) -> dict[str, Any]:
-        import google.generativeai as genai  # lazy import
+        import google.generativeai as genai  # type: ignore[reportMissingImports]  # lazy optional import
 
         genai.configure(api_key=self._api_key)
         model = genai.GenerativeModel(

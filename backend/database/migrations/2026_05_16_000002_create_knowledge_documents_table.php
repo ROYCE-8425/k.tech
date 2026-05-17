@@ -23,27 +23,29 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('knowledge_documents', function (Blueprint $table) {
-            $isPgsql = Schema::getConnection()->getDriverName() === 'pgsql';
+        if (!Schema::hasTable('knowledge_documents')) {
+            Schema::create('knowledge_documents', function (Blueprint $table) {
+                $isPgsql = Schema::getConnection()->getDriverName() === 'pgsql';
 
-            $table->id();
-            $table->string('source', 255);
-            $table->string('title', 500);
-            $table->text('content');
+                $table->id();
+                $table->string('source', 255);
+                $table->string('title', 500);
+                $table->text('content');
 
-            if ($isPgsql) {
-                $table->jsonb('metadata')->default('{}');
-            } else {
-                $table->json('metadata')->nullable();
-            }
+                if ($isPgsql) {
+                    $table->jsonb('metadata')->default('{}');
+                } else {
+                    $table->json('metadata')->nullable();
+                }
 
-            // Note: embedding vector(1536) column is managed by ai-service bootstrap
-            // and pgvector extension. Not created here for SQLite compatibility.
+                // Note: embedding vector(1536) column is managed by ai-service bootstrap
+                // and pgvector extension. Not created here for SQLite compatibility.
 
-            $table->timestamps();
+                $table->timestamps();
 
-            $table->index('source');
-        });
+                $table->index('source');
+            });
+        }
     }
 
     public function down(): void

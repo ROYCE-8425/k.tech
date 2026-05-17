@@ -3,11 +3,26 @@ import { motion } from 'framer-motion'
 import { Send, Loader2, CheckCircle, XCircle, Brain, Target, MessageSquare } from 'lucide-react'
 import axios from 'axios'
 
+type MatchEvidence = {
+  source: string
+  excerpt: string
+}
+
+type MatchResult = {
+  fit_score: number
+  rank_label: string
+  matched_skills: string[]
+  missing_skills: string[]
+  reasoning: string[]
+  evidence: MatchEvidence[]
+  agent_trace: string[]
+}
+
 export default function DemoPanel() {
   const [candidateId, setCandidateId] = useState('1')
   const [jobId, setJobId] = useState('1')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<MatchResult | null>(null)
   const [error, setError] = useState('')
 
   const handleMatch = async () => {
@@ -27,8 +42,12 @@ export default function DemoPanel() {
       } else {
         setError(response.data.message || 'Matching failed')
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Network error')
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError((err.response?.data as { message?: string } | undefined)?.message || 'Network error')
+      } else {
+        setError('Network error')
+      }
     } finally {
       setLoading(false)
     }
@@ -192,7 +211,7 @@ export default function DemoPanel() {
             <div className="p-4 rounded-xl bg-dark-light border border-white/5">
               <div className="text-sm font-medium mb-3">Grounding Evidence</div>
               <div className="space-y-2">
-                {result.evidence.map((ev: any, idx: number) => (
+                {result.evidence.map((ev: MatchEvidence, idx: number) => (
                   <div key={idx} className="text-xs text-gray-500">
                     <span className="text-primary">[{ev.source}]</span> {ev.excerpt.substring(0, 80)}...
                   </div>
