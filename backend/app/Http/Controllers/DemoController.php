@@ -87,8 +87,6 @@ class DemoController extends Controller
         // Logout current user first
         if (Auth::check()) {
             Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
         }
 
         // Run migrate:fresh + DemoSeeder
@@ -96,9 +94,16 @@ class DemoController extends Controller
             Artisan::call('migrate:fresh', ['--force' => true, '--seed' => false]);
             Artisan::call('db:seed', ['--class' => 'DemoSeeder', '--force' => true]);
 
+            // Regenerate session AFTER seeding so redirect carries a fresh CSRF token
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return redirect()->route('demo.landing')
                 ->with('status', '✅ Demo đã được reset về trạng thái ban đầu! Chọn vai trò để bắt đầu lại.');
         } catch (\Throwable $e) {
+            // Still regenerate token on failure so the form remains usable
+            $request->session()->regenerateToken();
+
             return redirect()->route('demo.landing')
                 ->with('error', '❌ Reset thất bại: ' . $e->getMessage());
         }
